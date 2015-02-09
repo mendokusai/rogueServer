@@ -1,0 +1,10 @@
+{
+  "name": "rogueCity",
+  "version": "0.0.1",
+  "private": true,
+  "description": "A websocket.io enabled Roguelike Game",
+  "dependencies": {
+    "express": "^4.10.2",
+    "socket.io": "^1.2.0"
+  }
+}
