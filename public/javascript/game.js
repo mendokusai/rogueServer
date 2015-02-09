@@ -69,7 +69,7 @@ window.onload = function(){
     //initialize game
     Game.init();
     //add container to page
-		document.body.appendChild(Game.getDisplay().getContainer());
+		$('container').append(Game.getDisplay().getContainer());
 		//load start screen
 		Game.switchScreen(Game.Screen.startScreen);
 	}

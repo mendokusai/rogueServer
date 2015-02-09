@@ -20,3 +20,12 @@
       position: absolute;
       margin: 0 auto;
     }
+
+    p {
+      color: red;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 20px;
+    }
