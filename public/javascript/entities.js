@@ -97,6 +97,21 @@ Game.Mixins.FungusActor = {
 	}
 }
 
+Game.Mixins.WanderActor = {
+	name: 'WanderActor',
+	groupName: 'Actor',
+	act: function() {
+		// flip coint o determine if moving by 1
+		var moveOffset = (Math.round(Math.random()) === 1) ? 1: -1;
+		// 50/50 towards x or y
+		if (Math.round(Math.random()) === 1) {
+			this.tryMove(this.getX() + moveOffset, this.getY(), this.getZ());
+		} else {
+			this.tryMove(this.getX(), this.getY() + moveOffset, this.getZ());
+		}
+	}
+};
+
 Game.Mixins.Attacker = {
 	name: 'Attacker',
 	groupName: 'Attacker',
@@ -122,8 +137,6 @@ Game.Mixins.Attacker = {
 		}
 	}
 }
-
-
 
 Game.Mixins.Destructable = {
 	name: 'Destructable',
@@ -208,16 +221,6 @@ Game.sendMessageNearby = function(map, centerX, centerY, centerZ, message, args)
 }
 
 
-Game.FungusTemplate = {
-	character: "F",
-	foreground: 'green',
-	_maxHP: 5,
-	mixins: [Game.Mixins.FungusActor, Game.Mixins.Destructable]
-}
-
-
-
-
 Game.PlayerTemplate = {
 	character: "$",
 	foreground: 'yellow',
@@ -225,28 +228,31 @@ Game.PlayerTemplate = {
 	hp: 40,
 	maxHp: 40,
 	attackValue: 10,
-	sightRadius: 5,
-	mixins: [Game.Mixins.PlayerActor,
-						Game.Mixins.Attacker, Game.Mixins.Destructable,
-						Game.Mixins.Sight, Game.Mixins.MessageRecipient]
-}
-
-Game.Mixins.WanderActor = {
-	name: 'WanderActor',
-	groupName: 'Actor',
-	act: function() {
-		// flip coint o determine if moving by 1
-		var moveOffset = (Math.round(Math.random()) === 1) ? 1: -1;
-		// 50/50 towards x or y
-		if (Math.round(Math.random()) === 1) {
-			this.tryMove(this.getX() + moveOffset, this.getY(), this.getZ());
-		} else {
-			this.tryMove(this.getX(), this.getY() + moveOffset, this.getZ());
-		}
-	}
+	sightRadius: 7,
+	mixins: [
+			Game.Mixins.PlayerActor,
+			Game.Mixins.Attacker, 
+			Game.Mixins.Destructable,
+			Game.Mixins.Sight, 
+			Game.Mixins.MessageRecipient
+			]
 };
 
-Game.BatTemplate = {
+//central entity repo
+Game.EntityRepository = new Game.Repository('entities', Game.Entity);
+
+Game.EntityRepository.define('fungus', {
+	name: 'fungus',
+	character: 'F',
+	foreground: 'green',
+	maxHp: 5,
+	mixins: [
+			Game.Mixins.FungusActor, 
+			Game.Mixins.Destructable
+			]
+});
+
+Game.EntityRepository.define('bat', {
 	name: 'bat',
 	character: 'B',
 	foreground: 'brown',
@@ -257,9 +263,9 @@ Game.BatTemplate = {
 			Game.Mixins.Attacker, 
 			Game.Mixins.Destructable
 			]
-};
+});
 
-Game.NewtTemplate = {
+Game.EntityRepository.define('newt', {
 	name: 'newt',
 	character: '%',
 	foreground: 'blue',
@@ -270,7 +276,12 @@ Game.NewtTemplate = {
 			Game.Mixins.Attacker,
 			Game.Mixins.Destructable
 			]
-};
+});
+
+
+
+
+
 
 
 

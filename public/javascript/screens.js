@@ -5,7 +5,7 @@ Game.Screen.startScreen = {
 	exit: function() { console.log("Exited start screen."); },
 	render: function(display) {
 		display.drawText(1,1, "%c{red}Javascript Roguelike");
-		display.drawText(1,2, "Press [Return] to start!");
+		display.drawText(1,2, "Press [Enter] to start your descent!");
 	},
 	handleInput: function(inputType, inputData) {
 		if (inputType === 'keydown') {
@@ -70,16 +70,31 @@ Game.Screen.playScreen = {
 			for (var y = topLeftY; y < topLeftY + screenHeight; y++) {
 				if (map.isExplored(x, y, currentDepth)) {
 					//fetch glyph for tile and render it
-					var tile  = this._map.getTile(x, y, currentDepth);
+					var glyph  = this._map.getTile(x, y, currentDepth);
 					//color is dark gray is explored, but not visible
-					var foreground = visibleCells[x + ',' + y] ?
-						tile.getForeground() : 'darkgray';
+					var foreground = glyph.getForeground();
+					if (visibleCells[x + ',' + y]) {
+						var items = map.getItemsAt(x, y, currentDepth);
+						//if we have items, we want to render top-most
+						if (items) {
+							glyph = items[items.length - 1];
+						}
+						//check if we have entity at position
+						if (map.getEntityAt(x, y, currentDepth)) {
+							glyph = map.getEntityAt(x, y, currentDepth);
+						}
+						//update foreground color in case glyph changed
+						foreground = glyph.getForeground();
+					} else {
+						//change explored to dark grey
+						foreground = 'darkgray';
+					}	
 						display.draw(
 							x - topLeftX,
 							y - topLeftY,
-							tile.getChar(),
+							glyph.getChar(),
 							foreground,
-							tile.getBackground()
+							glyph.getBackground()
 							);
 				}
 			}

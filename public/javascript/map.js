@@ -12,6 +12,9 @@ Game.Map = function(tiles, player) {
 	
 	//a list to hold entities
 	this._entities = {};
+
+	//table for items
+	this._items = {};
 	
 	//engine & scheduler
 	this._scheduler = new ROT.Scheduler.Simple();
@@ -21,16 +24,17 @@ Game.Map = function(tiles, player) {
 	this.addEntityAtRandomPosition(player, 0);
 	
 	//add random enemies to each floor
-	var templates = [Game.FungusTemplate, Game.BatTemplate, Game.NewtTemplate];
 	for (var z = 0; z < this._depth; z++) {
+		//15 entities per floor
 		for (var i = 0; i < 15; i++) {
-			//select rando template
-			var template = templates[Math.floor(Math.random() * templates.length)];
-			//place entity
-			this.addEntityAtRandomPosition(new Game.Entity(template), z);
+			//add rando entity
+			this.addEntityAtRandomPosition(Game.EntityRepository.createRandom(), z);
+		}
+		for (var i = 0; i < 10; i++) {
+			//add random item
+			this.addItemAtRandomPosition(Game.ItemRepository.createRandom(), z);
 		}
 	}
-
 	//explored array
 	this._explored = new Array(this._depth);
 	this._setupExploredArray();
@@ -124,6 +128,38 @@ Game.Map.prototype.getEntities = function() {
 
 Game.Map.prototype.getEntityAt = function(x, y, z) {
 return this._entities[x + ',' + y + ',' + z];
+};
+
+Game.Map.prototype.getItemsAt = function(x, y, z) {
+	return this._items[x + ',' + y + ',' + z];
+}
+
+Game.Map.prototype.setItemsAt = function(x, y, z, items) {
+	//if item array is empty, delete key
+	var key = x + ',' + y + ',' + z;
+	if (items.length === 0) {
+		if (this._items[key]) {
+			delete this._items[key];
+		}
+	} else {
+		//update items at key
+		this._items[key] = items;
+	}
+};
+
+Game.Map.prototype.addItem = function(x, y, z, item) {
+	//if we have item, append item to list
+	var key = x + ',' + y  + ',' + z;
+	if (this._items[key]) {
+		this._items[key].push(item);
+	} else {
+		this._items[key] = [item];
+	}
+};
+
+Game.Map.prototype.addItemAtRandomPosition = function(item, z) {
+	var position = this.getRandomFloorPosition(z);
+	this.addItem(position.x, position.y, position.z, item);
 };
 
 Game.Map.prototype.dig = function(x, y, z) {
@@ -226,4 +262,7 @@ Game.Map.prototype.updateEntityPosition = function(entity, oldX, oldY, oldZ) {
 	//add entity to table of entities
 	this._entities[key] = entity;
 };
+
+
+
 

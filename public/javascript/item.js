@@ -7,3 +7,4 @@ Game.Item = function(properties) {
 };
 
 Game.Item.extend(Game.Glyph);
+
