@@ -20,12 +20,6 @@ Game.Map = function(tiles, player) {
 	//add the player
 	this.addEntityAtRandomPosition(player, 0);
 	
-	// //add random fungi
-	// for (var z = 0; z < this.depth; z++) {
-	// 	for (var i = 0; i < 25; i++) {
-	// 		this.addEntityAtRandomPosition(new Game.Entity(Game.FungusTemplate), z);
-	// 	}		
-	// }
 	//add random enemies to each floor
 	var templates = [Game.FungusTemplate, Game.BatTemplate, Game.NewtTemplate];
 	for (var z = 0; z < this._depth; z++) {
@@ -129,15 +123,6 @@ Game.Map.prototype.getEntities = function() {
 };
 
 Game.Map.prototype.getEntityAt = function(x, y, z) {
-// 	//iterates through all searching for matching coord
-// 	for (var i = 0; i < this._entities.length; i++) {
-// 		if (this._entities[i].getX() == x && this._entities[i].getY() == y &&
-// 				this._entities[i].getZ() == z) {
-// 			return this._entities[i];
-// 		}
-// 	}
-// 	return false;
-// };
 return this._entities[x + ',' + y + ',' + z];
 };
 
@@ -161,13 +146,6 @@ Game.Map.prototype.getRandomFloorPosition = function() {
 }
 
 Game.Map.prototype.addEntity = function(entity) {
-	// //make entity's position within bounds
-	// if (entity.getX() < 0 || entity.getX() >= this._width ||
-	// 		entity.getY() < 0 || entity.getY() >= this._height ||
-	// 		entity.getZ() < 0 || entity.getZ() >= this._depth) {
-	// 	throw new Error('Adding entity out of bounds.');
-	// }
-
 	//update entity's map
 	entity.setMap(this);
 	//update map with entity's position
@@ -181,13 +159,6 @@ Game.Map.prototype.addEntity = function(entity) {
 }
 
 Game.Map.prototype.removeEntity = function(entity) {
-	// //find entity in list of entities if it is present
-	// for (var i = 0; i < this._entities.length; i++) {
-	// 	if (this._entities[i] == entity) {
-	// 		this._entities.splice(i, 1);
-	// 		break;
-	// 	}
-	// }
 	//remove the entity from the map
 	var key = entity.getX() + ',' + entity.getY() +',' + entity.getZ();
 	if (this._entities[key] == entity) {
@@ -222,15 +193,6 @@ Game.Map.prototype.getEntitiesWithinRadius = function(centerX, centerY,
 	var topY = centerY - radius;
 	var bottomY = centerY + radius;
 	//iterate throught entities adding any in range
-	// for (var i = 0; i < this._entities.length; i++) {
-	// 	if (this._entities[i].getX() >= leftX &&
-	// 		this._entities[i].getX() <= rightX &&
-	// 		this._entities[i].getY() >= topY &&
-	// 		this._entities[i].getY() <= bottomY &&
-	// 		this._entities[i].getZ() == centerZ) {
-	// 		results.push(this._entities[i]);
-	// 	}
-	// }
 	for (var key in this._entities) {
 		var entity = this._entities[key];
 		if (entity.getX() >= leftX && entity.getX() <= rightX &&
