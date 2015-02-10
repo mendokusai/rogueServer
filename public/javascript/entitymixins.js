@@ -5,10 +5,16 @@ Game.EntityMixins.PlayerActor = {
 	name: 'PlayerActor',
 	groupName: 'Actor',
 	act: function() {
+		if (this._acting) {
+			return;
+		}
+		this._acting = true;
+		this.addTurnHunger();
 		//detect if game is over
-		if (this.getHp() < 1 ) {
+		if (!this.isAlive()) {
 			Game.Screen.playScreen.setGameEnded(true);
-			Game.sendMessage(this, 'You dead! Press [Enter] to continue.');
+			//send a last message
+			Game.sendMessage(this, 'Press [Enter] to continue.');
 		}
 		//rerender the screen
 		Game.refresh();
@@ -16,6 +22,7 @@ Game.EntityMixins.PlayerActor = {
 		this.getMap().getEngine().lock();
 		//clear messages queue
 		this.clearMessages();
+		this._acting = false;
 	}
 };
 
@@ -127,11 +134,10 @@ Game.EntityMixins.Destructable = {
 		if (this._hp <= 0) {
 			Game.sendMessage(attacker, 'In a rage, you kill the %s.', 
 				[this.getName()]);
-			if (this.hasMixin(Game.EntityMixins.PlayerActor)) {
-				this.act();
-			} else {
-				this.getMap().removeEntity(this);
+			if (this.hasMixin(Game.EntityMixins.CorpseDropper)) {
+				this.tryDropCorpse();
 			}
+			this.kill();
 		}
 	}
 };
@@ -230,6 +236,67 @@ Game.EntityMixins.InventoryHolder = {
 				this._map.addItem(this.getX(), this.getY(), this.getZ(), this._items[i]);
 			}
 			this.removeItem(i);
+		}
+	}
+};
+
+Game.EntityMixins.FoodConsumer = {
+	name: 'FoodConsumer',
+	init: function(template) {
+		this._maxFullness = template['maxFullness'] || 100;
+		//start halfway to max fullness 
+		this._fullness = template['fullness'] || (this._maxFullness /2);
+		//number of points to decrease fullness by every turn
+		this._fullnessDepletionRate = template['fullnessDepletionRate'] || 1;	
+	},
+	addTurnHunger: function() {
+		//remove standard depletion points
+		this.modifyFullnessBy(-this._fullnessDepletionRate);
+	},
+	modifyFullnessBy: function(points) {
+		this._fullness = this._fullness + points;
+		if (this._fullness <= 0) {
+			this.kill("You hunger for food proves to unhinge you need for life.");
+		} else if (this._fullness > this._maxFullness) {
+			this.kill("Your gluttony proves your undoing. You choke and gurgle a final sad noise.");
+		}
+	},
+	getHungerState: function() {
+		//fullness points percent of max
+		var perPercent = this._maxFullness / 100;
+		//5% of max = starving
+		if (this._fullness <= perPercent * 5) {
+			return 'Starving!';
+		//25% of max = hungry;
+		} else if (this._fullness <= perPercent * 25) {
+			return 'Very hungry.';
+		//95% of max = oversatiated
+		} else if (this._fullness >= perPercent * 95) {
+			return 'Stuffed. I couldn\'t eat a wafer.';
+		//75% of max = full
+		} else if (this._fullness >= perPercent * 75) {
+			return 'Full';
+		//Anything else = nothungy
+		} else {
+			return 'Content';
+		}
+	}
+};
+
+Game.EntityMixins.CorpseDropper = {
+	name: 'CorpseDropper',
+	init: function(template) {
+		//chance of dropping a corpse
+		this._corpseDropRate = template['corpseDropRate'] || 100;
+	},
+	tryDropCorpse: function() {
+		if (Math.round(Math.random() * 100) < this._corpseDropRate) {
+			//create a new corpse item and drop it
+			this._map.addItem(this.getX(), this.getY(), this.getZ(),
+				Game.ItemRepository.create('corpse', {
+					name: this._name + ' corpse',
+					foreground: this._foreground
+				}));
 		}
 	}
 };

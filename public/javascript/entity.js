@@ -3,13 +3,14 @@
 Game.Entity = function(properties) {
 	properties = properties || {};
 	//call glyph's constructor with properties
-	Game.Glyph.call(this, properties);
+	Game.DynamicGlyph.call(this, properties);
 	//instantiate properties
 	this._name = properties['name'] || '';
 	this._x = properties['x'] || 0;
 	this._y = properties['y'] || 0;
 	this._z = properties['z'] || 0;
 	this._map = null;
+	this._alive = true;
 
 	//create an obj to keep track of mixins attached to entity based on name
 	this._attachedMixins = {};
@@ -40,20 +41,43 @@ Game.Entity = function(properties) {
 
 };
 
-Game.Entity.extend(Game.Glyph);
+Game.Entity.extend(Game.DynamicGlyph);
 
-Game.Entity.prototype.hasMixin = function(obj) {
-	//allow passing mixin or name as string
-	if (typeof obj === 'object') {
-		return this._attachedMixins[obj.name];
-	} else {
-		return this._attachedMixins[obj] || this._attachedMixinGroups[obj];
+// Game.Entity.prototype.hasMixin = function(obj) {
+// 	//allow passing mixin or name as string
+// 	if (typeof obj === 'object') {
+// 		return this._attachedMixins[obj.name];
+// 	} else {
+// 		return this._attachedMixins[obj] || this._attachedMixinGroups[obj];
+// 	}
+// } 
+
+// Game.Entity.prototype.setName = function(name) {
+// 	this._name = name;
+// }
+
+Game.Entity.prototype.isAlive = function() {
+	return this._alive;
+};
+
+Game.Entity.prototype.kill = function(message) {
+	//only kill once
+	if (!this._alive) {
+		return;
 	}
-} 
-
-Game.Entity.prototype.setName = function(name) {
-	this._name = name;
-}
+	this._alive = false;
+	if (message) {
+		Game.sendMessage(this, message);
+	} else {
+		Game.sendMessage(this, "You dead!");
+	}
+	//check if player died, and call act to propt user
+	if (this.hasMixin(Game.EntityMixins.PlayerActor)) {
+		this.act();
+	} else {
+		this.getMap().removeEntity(this);
+	}
+};
 
 Game.Entity.prototype.setX = function(x) {
 	this._x = x;
@@ -138,9 +162,9 @@ Game.Entity.prototype.tryMove = function(x, y, z, map) {
 	return false;
 };
 
-Game.Entity.prototype.getName = function() {
-	return this._name;
-}
+// Game.Entity.prototype.getName = function() {
+// 	return this._name;
+// }
 
 Game.Entity.prototype.getX = function() {
 	return this._x;

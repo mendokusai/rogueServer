@@ -14,6 +14,7 @@ Game.PlayerTemplate = {
 			Game.EntityMixins.Attacker, 
 			Game.EntityMixins.Destructable,
 			Game.EntityMixins.InventoryHolder,
+			Game.EntityMixins.FoodConsumer,
 			Game.EntityMixins.Sight, 
 			Game.EntityMixins.MessageRecipient
 			]
@@ -42,7 +43,8 @@ Game.EntityRepository.define('bat', {
 	mixins: [
 			Game.EntityMixins.WanderActor,
 			Game.EntityMixins.Attacker, 
-			Game.EntityMixins.Destructable
+			Game.EntityMixins.Destructable,
+			Game.EntityMixins.CorpseDropper
 			]
 });
 
@@ -55,7 +57,8 @@ Game.EntityRepository.define('newt', {
 	mixins: [
 			Game.EntityMixins.WanderActor,
 			Game.EntityMixins.Attacker,
-			Game.EntityMixins.Destructable
+			Game.EntityMixins.Destructable,
+			Game.EntityMixins.CorpseDropper
 			]
 });
 

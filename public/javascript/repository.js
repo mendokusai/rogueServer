@@ -4,21 +4,32 @@ Game.Repository = function(name, ctor) {
 	this._name = name;
 	this._templates = {};
 	this._ctor = ctor;
+	this._randomTemplates = {};
 };
 
 //define a new named _templates
-Game.Repository.prototype.define = function(name, template) {
+Game.Repository.prototype.define = function(name, template, options) {
 	this._templates[name] = template;
+	//apply any options
+	var disableRandomCreation = options && options['disableRandomCreation'];
+	if (!disableRandomCreation) {
+		this._randomTemplates[name] = template;
+	}
 };
 
 //define new named template
-Game.Repository.prototype.create = function(name) {
-	//make sure template has name
-	var template = this._templates[name];
+Game.Repository.prototype.create = function(name, extraProperties) {
+	if (!this._templates[name]) {
+		throw new Error('No template name "' + name + '" in repository "' + this._name + '"');
+	}
+	//copy template
+	var template = Object.create(this._templates[name]);
 
-	if (!template) {
-		throw new Error ('No template named"' + name + '" in repository "' +
-				this._name + '"');
+	//apply extra properties
+	if (extraProperties) {
+		for (var key in extraProperties) {
+			template[key] = extraProperties[key];
+		}
 	}
 	//create object, using template
 	return new this._ctor(template);
@@ -26,5 +37,5 @@ Game.Repository.prototype.create = function(name) {
 
 Game.Repository.prototype.createRandom = function() {
 	//pick random key and create object
-	return this.create(Object.keys(this._templates).random());
+	return this.create(Object.keys(this._randomTemplates).random());
 };

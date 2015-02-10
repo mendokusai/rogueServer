@@ -146,6 +146,10 @@ Game.Screen.playScreen = {
 			}
 		}
 
+		//render hunger state
+		var hungerState = this._player.getHungerState();
+		display.drawText(screenWidth - hungerState.length, screenHeight, hungerState);
+
 	},
 
 	handleInput: function(inputType, inputData) {
@@ -180,25 +184,32 @@ Game.Screen.playScreen = {
 				} else if (inputData.keyCode === ROT.VK_DOWN) {
 					this.move(0, 1, 0);
 				} else if (inputData.keyCode === ROT.VK_I) {
-						if (this._player.getItems().filter(function(x) {return x;}).length === 0) {
-						 //if player has no items, send message && no turn
+						//show inventory
+						if (Game.Screen.inventoryScreen.setup(this._player, this._player.getItems())) {
+							this.setSubScreen(Game.Screen.inventoryScreen);
+						} else {
+							//if player has no items, send message && no turn
 						 Game.sendMessage(this._player, 'You are not carrying anything!');
 						 Game.refresh();
-						} else {
-							//show inventory
-							Game.Screen.inventoryScreen.setup(this._player, this._player.getItems());
-							this.setSubScreen(Game.Screen.inventoryScreen);
 						}
 						return;
 				} else if (inputData.keyCode === ROT.VK_D) {
-						if (this._player.getItems().filter(function(x){return x;}).length === 0) {
+						//show the drop screen
+						if (Game.Screen.dropScreen.setup(this._player, this._player.getItems())) {
+							this.setSubScreen(Game.Screen.dropScreen);
+						} else {
 							//if player has no items, send message and no turn
 							Game.sendMessage(this._player, "You have nothing to drop.");
 							Game.refresh();
+						}
+						return;
+				} else if (input.Data.keyCode === ROT.VK_E) {
+						//show drop screen
+						if (Game.Screen.eatScreen.setup(this._player, this._player.getItems())) {
+							this.setSubScreen(Game.Screen.eatScreen);
 						} else {
-							//show the drop screen
-							Game.Screen.dropScreen.setup(this._player, this._player.getItems());
-							this.setSubScreen(Game.Screen.dropScreen);
+							Game.sendMessage(this._player, 'You have nothing to eat.');
+							Game.refresh();
 						}
 						return;
 				} else if (inputData.keyCode == ROT.VK_COMMA) {
@@ -259,22 +270,40 @@ Game.Screen.playScreen = {
 	}
 };
 
+
+
 Game.Screen.ItemListScreen = function(template) {
 	//set up based on template
 	this._caption = template['caption'];
-	this.okFunction = template['ok'];
+	this._okFunction = template['ok'];
+	//by default, we use the itentity function
+	this._isAcceptableFunction = template['isAcceptable'] || function(x) {
+		return x;
+	}
 	//whether user can select items
 	this._canSelectItem = template['canSelect'];
-	//whether user can select multiple items
-	this._canSelectMultipleItems = template['_canSelectMultipleItems'];
+	//whether the user can select multiple items
+	this._canSelectMultipleItems = template['canSelectMultipleItems'];
 };
 
 Game.Screen.ItemListScreen.prototype.setup = function(player, items) {
 	this._player = player;
 	//call before switching screen
-	this._items = items;
+	var count = 0;
+	var that = this;
+
+	this._items = items.map(function(item) {
+		//transform item to null if not acceptable
+		if (that._isAcceptableFunction(item)) {
+			count++;
+			return item;
+		} else {
+			return null;
+		}
+	});
 	//clean set of selected indices
 	this._selectedIndices = {};
+	return count;
 };
 
 Game.Screen.ItemListScreen.prototype.render = function(display) {
@@ -375,6 +404,27 @@ Game.Screen.dropScreen = new Game.Screen.ItemListScreen({
 		this._player.dropItem(Object.keys(selectedItems)[0]);
 		return true;
 	}
+});
+
+Game.Screen.eatScreen = new Game.Screen.ItemListScreen({
+	caption: 'Choose an item to eat',
+	canSelect: true,
+	canSelectMultipleItems: false,
+	isAcceptable: function(item) {
+		return item && item.hasMixin('Edible');
+	},
+	ok: function(selectedItems) {
+		//eat the item, removing if no parts left
+		var key = Object.keys(selectedItems)[0];
+		var item = selectedItems[key];
+		Game.sendMessage(this._player, 'You eat %s.', [item.describeThe()]);
+		item.eat(this._player);
+		if (!item.hasRemainingConsumptions()) {
+			this._player.removeItem(key);
+		}
+		return true;
+	}
+
 });
 
 Game.Screen.winScreen = {
