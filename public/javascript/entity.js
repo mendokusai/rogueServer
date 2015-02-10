@@ -117,6 +117,15 @@ Game.Entity.prototype.tryMove = function(x, y, z, map) {
 	//check if we can walk on tile, step to it, playa'
 	} else if (tile.isWalkable()) {
 		this.setPosition(x, y, z);
+		//notify entity that there are items at position
+		var items = this.getMap().getItemsAt(x, y, z);
+		if (items) {
+			if (items.length === 1) {
+				Game.sendMessage(this, "You see %s.", [items[0].describeA()]);
+			} else {
+				Game.sendMessage(tis, "There are several objects here.");
+			}
+		}
 		return true;
 	} else if (tile.isDiggable()) {
 		//only dig if entity is player

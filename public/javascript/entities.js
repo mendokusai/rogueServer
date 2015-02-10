@@ -51,6 +51,11 @@ Game.Mixins.PlayerActor = {
 	name: 'PlayerActor',
 	groupName: 'Actor',
 	act: function() {
+		//detect if game is over
+		if (this.getHp() < 1 ) {
+			Game.Screen.playScreen.setGameEnded(true);
+			Game.sendMessage(this, 'You dead! Press [Enter] to continue.');
+		}
 		//rerender the screen
 		Game.refresh();
 		//lock engine and wait for player to press key
@@ -67,6 +72,17 @@ Game.Mixins.FungusActor = {
 		this._growthsRemaining = 5;
 	},
 	act: function() {
+		// //bug fix??
+		// if (this.getMap().isEmptyFloor(this.getX() + xOffset,
+		// 															 this.getY() + yOffset,
+		// 															 this.getZ())) {
+		// 	var entity = Game.EntityRepository.create('fungus');
+		// 	entity.setPosition(this.getX() + xOffset, 
+		// 										 this.getY() + yOffset,
+		// 									 	 this.getZ());
+		// 	this.getMap().addEntity(entity);
+		// }
+
 		//check to see if spawn child
 		if (this._growthsRemaining > 0) {
 			if (Math.random() <= 0.02) {
@@ -81,15 +97,18 @@ Game.Mixins.FungusActor = {
 					if (this.getMap().isEmptyFloor(this.getX() + xOffset,
 																				 this.getY() + yOffset,
 																				 this.getZ())) {
-						var entity = new Game.Entity(Game.FungusTemplate);
-					entity.setX(this.getX() + xOffset);
-					entity.setY(this.getY() + yOffset, this.getZ());
-					this.getMap().addEntity(entity);
-					this._growthsRemaining--;
-					//send message to nearby
-					Game.sendMessageNearby(this.getMap(),
-						entity.getX(), entity.getY(), entity.getZ(),
-						"The fungi are growing!");
+						var entity = Game.EntityRepository.create('fungus');
+						entity.setPosition(this.getX() + xOffset, 
+															 this.getY() + yOffset, 
+															 this.getZ());
+						this.getMap().addEntity(entity);
+						this._growthsRemaining--;
+						//send message to nearby
+						Game.sendMessageNearby(this.getMap(),
+																	 entity.getX(), 
+																	 entity.getY(), 
+																	 entity.getZ(),
+							"The fungi are growing!");
 					}
 				}
 			}
@@ -102,12 +121,15 @@ Game.Mixins.WanderActor = {
 	groupName: 'Actor',
 	act: function() {
 		// flip coint o determine if moving by 1
-		var moveOffset = (Math.round(Math.random()) === 1) ? 1: -1;
+		var moveOffset = (Math.round(Math.random()) === 1) ? 1 : -1;
 		// 50/50 towards x or y
 		if (Math.round(Math.random()) === 1) {
-			this.tryMove(this.getX() + moveOffset, this.getY(), this.getZ());
+			this.tryMove(this.getX() + moveOffset, 
+									 this.getY(), this.getZ());
 		} else {
-			this.tryMove(this.getX(), this.getY() + moveOffset, this.getZ());
+			this.tryMove(this.getX(), 
+									 this.getY() + moveOffset, 
+									 this.getZ());
 		}
 	}
 };
@@ -133,7 +155,7 @@ Game.Mixins.Attacker = {
 				[target.getName(), damage]);
 			Game.sendMessage(target, 'The %s strikes you for %d damange.',
 				[this.getName(), damage]);
-			target.takeDamage(this. damage);
+			target.takeDamage(this, damage);
 		}
 	}
 }
@@ -141,8 +163,8 @@ Game.Mixins.Attacker = {
 Game.Mixins.Destructable = {
 	name: 'Destructable',
 	init: function(template) {
-		this._maxHp = template['maxHp'] || this._maxHp;
-		this._hp = template['hp'] || this._hp;
+		this._maxHp = template['maxHp'] || 10;
+		this._hp = template['hp'] || this._maxHp;
 		this._defenseValue = template['defenseValue'] || 0;
 	},
 	getDefenseValue: function() {
@@ -160,11 +182,14 @@ Game.Mixins.Destructable = {
 		if (this._hp <= 0) {
 			Game.sendMessage(attacker, 'In a rage, you kill the %s.', 
 				[this.getName()]);
-			Game.sendMessage(this, 'You\'re finished!');
-			this.getMap().removeEntity(this);
+			if (this.hasMixin(Game.Mixins.PlayerActor)) {
+				this.act();
+			} else {
+				this.getMap().removeEntity(this);
+			}
 		}
 	}
-}
+};
 
 //messaging
 Game.Mixins.MessageRecipient = {
@@ -193,6 +218,76 @@ Game.Mixins.Sight = {
 		return this._sightRadius;
 	}
 }
+
+Game.Mixins.InventoryHolder = {
+	name: 'InventoryHolder',
+	init: function(template) {
+		//default to 10 slots.
+		var inventorySlots = template['inventorySlots'] || 10;
+		//set up empty inventory
+		this._items = new Array(inventorySlots);
+	},
+	getItems: function() {
+		return this._items;
+	},
+	getItem: function(i) {
+		return this._items[i];
+	},
+	addItem: function(item) {
+		//try to find a slot returning true if item added
+		for (var i = 0; i < this._items.length; i++) {
+			if (!this._items[i]) {
+				this._items[i] = item;
+				return true;
+			}
+		}
+		return false;
+	},
+	removeItem: function(i) {
+		//clear inventory slot
+		this._items[i] = null;
+	},
+	canAddItem: function() {
+		//check for empty slot
+		for (var i = 0; i < this._items.length; i++) {
+			if (!this._items[i]){
+				return true;
+			}
+		}
+		return false;
+	},
+	pickupItems: function(indices) {
+		//allow user to pickup items from map at location
+		//indicies for array from map.getItemsAt
+		var mapItems = this._map.getItemsAt(this.getX(), this.getY(), this.getZ());
+		var added = 0;
+		//iterate through all indices
+		for (var i = 0; i < indices.length; i++) {
+			//add item. if inventory has room, splice item out of list
+			//offset number of items to fetch correct item
+			if (this.addItem(mapItems[indices[i] - added])) {
+				mapItems.splice(indices[i] - added, 1);
+				added++;
+			}	else {
+				//inventory is full
+				break;
+			}
+		}
+		//update map items
+		this._map.setItemsAt(this.getX(), this.getY(), this.getZ(), mapItems);
+		//return true only if added all items
+		return added === indices.length;
+	},
+	dropItem: function(i) {
+		//drop item to current map tile
+		if (this._items[i]) {
+			if (this._map) {
+				this._map.addItem(this.getX(), this.getY(), this.getZ(), this._items[i]);
+			}
+			this.removeItem(i);
+		}
+	}
+};
 
 Game.sendMessage = function(recipient, message, args) {
 	//check recipient can receive message
@@ -229,10 +324,12 @@ Game.PlayerTemplate = {
 	maxHp: 40,
 	attackValue: 10,
 	sightRadius: 7,
+	inventorySlots: 22,
 	mixins: [
 			Game.Mixins.PlayerActor,
 			Game.Mixins.Attacker, 
 			Game.Mixins.Destructable,
+			Game.Mixins.InventoryHolder,
 			Game.Mixins.Sight, 
 			Game.Mixins.MessageRecipient
 			]
