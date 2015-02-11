@@ -31,12 +31,14 @@ Game.Screen.playScreen = {
 
 		//greate map from tiles and player
 		var tiles = new Game.Builder(width, height, depth).getTiles();
+		
 		//create player and set position
 		this._player = new Game.Entity(Game.PlayerTemplate);
-		//create map from tiles and player
-		this._map = new Game.Map(tiles, this._player);
+		
+		var map = new Game.Map.Cave(tiles, this._player);
+
 		//start map engine
-		this._map.getEngine().start();
+		this._player.getMap().getEngine().start();
 
 		
 	},
@@ -54,14 +56,14 @@ Game.Screen.playScreen = {
 		var screenHeight = Game.getScreenHeight();
 		//x-axis doesn't go beyond left bound
 		var topLeftX = Math.max(0, this._player.getX() - (screenWidth / 2));
-		topLeftX = Math.min(topLeftX, this._map.getWidth() - screenWidth);
+		topLeftX = Math.min(topLeftX, this._player.getMap().getWidth() - screenWidth);
 		//y-axis doesn't go beyong top boundary
 		var topLeftY = Math.max(0, this._player.getY() - (screenHeight / 2));
-		topLeftY = Math.min(topLeftY, this._map.getHeight() - screenHeight);
+		topLeftY = Math.min(topLeftY, this._player.getMap().getHeight() - screenHeight);
 		
 		var visibleCells = {};
 		//store this._map and player z to remember it.
-		var map = this._map;
+		var map = this._player.getMap();
 		var currentDepth = this._player.getZ();
 		//find visible cells and update object
 		map.getFov(currentDepth).compute(
@@ -78,7 +80,7 @@ Game.Screen.playScreen = {
 			for (var y = topLeftY; y < topLeftY + screenHeight; y++) {
 				if (map.isExplored(x, y, currentDepth)) {
 					//fetch glyph for tile and render it
-					var glyph  = this._map.getTile(x, y, currentDepth);
+					var glyph  = map.getTile(x, y, currentDepth);
 					//color is dark gray is explored, but not visible
 					var foreground = glyph.getForeground();
 					if (visibleCells[x + ',' + y]) {
@@ -128,7 +130,7 @@ Game.Screen.playScreen = {
 		display.drawText(0, screenHeight, stats);
 
 		//render entities
-		var entities = this._map.getEntities();
+		var entities = this._player.getMap().getEntities();
 		for (var key in entities) {
 			var entity = entities[key];
 			//only render entity if they show in screen
@@ -212,9 +214,9 @@ Game.Screen.playScreen = {
 					}
 					return;
 				} else if (inputData.keyCode == ROT.VK_COMMA) {
-						var items = this._map.getItemsAt(this._player.getX(), 
-																						 this._player.getY(), 
-																						 this._player.getZ());
+						var items = this._player.getMap().getItemsAt(this._player.getX(),
+																												 this._player.getY(), 
+																												 this._player.getZ());
 						//if there are no items, show a message
 						if (items && items.length === 1) {
 							var item = items[0];
@@ -233,7 +235,7 @@ Game.Screen.playScreen = {
 					return;
 				}
 				//unlock engine on move
-				this._map.getEngine().unlock();
+				this._player.getMap().getEngine().unlock();
 			}
 		} else if (inputType === 'keypress') {
 			var keyChar = String.fromCharCode(inputData.charCode);
@@ -246,7 +248,7 @@ Game.Screen.playScreen = {
 				return;
 			}
 			//unlock engine on move
-			this._map.getEngine().unlock();			
+			this._player.getMap().getEngine().unlock();			
 		}
 
 	},
@@ -256,7 +258,7 @@ Game.Screen.playScreen = {
 		var newZ = this._player.getZ() + dZ;
 		//try to move to new cell
 
-		this._player.tryMove(newX, newY, newZ, this._map);
+		this._player.tryMove(newX, newY, newZ, this._player.getMap());
 	},
 	setGameEnded: function(gameEnded) {
 		this._gameEnded = gameEnded;
@@ -422,6 +424,7 @@ Game.Screen.wieldScreen = new Game.Screen.ItemListScreen({
 	canSelectMultipleItems: false,
 	hasNoItemsOption: true,
 	isAcceptable: function(item) {
+		debugger;
 		return item && item.hasMixin('Equippable') && item.isWieldable();
 	},
 	ok: function(selectedItems) {

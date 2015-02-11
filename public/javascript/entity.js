@@ -126,7 +126,11 @@ Game.Entity.prototype.tryMove = function(x, y, z, map) {
 	var target = map.getEntityAt(x, y, this.getZ());
 	//if our z level has changed, check if we are on stair
 	if (z < this.getZ()) {
-		if (tile != Game.Tile.stairsUpTile) {
+		if (tile === Game.Tile.holeToCavernTile && 
+			this.hasMixin(Game.EntityMixins.PlayerActor)) {
+			//switch entity to boss cavern
+			this.switchMap(new Game.Map.BossCavern());
+		} else if (tile != Game.Tile.stairsUpTile) {
 			Game.sendMessage(this, "You can't go up here.");
 		} else {
 			Game.sendMessage(this, 'You ascend the stairs to level %d.', [z + 1]);
@@ -175,6 +179,20 @@ Game.Entity.prototype.tryMove = function(x, y, z, map) {
 // Game.Entity.prototype.getName = function() {
 // 	return this._name;
 // }
+
+Game.Entity.prototype.switchMap = function(newMap) {
+	//if its the same map, do nothing
+	if (newMap === this.getMap()) {
+		return;
+	}
+	this.getMap().removeEntity(this);
+	//clear position
+	this._x = 0;
+	this._y = 0;
+	this._z = 0;
+	//Add to new map
+	newMap.addEntity(this);
+};
 
 Game.Entity.prototype.getX = function() {
 	return this._x;

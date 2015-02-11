@@ -1,4 +1,4 @@
-Game.Map = function(tiles, player) {
+Game.Map = function(tiles) {
 	this._tiles = tiles;
 	
 	//cache dimensions
@@ -19,42 +19,45 @@ Game.Map = function(tiles, player) {
 	//engine & scheduler
 	this._scheduler = new ROT.Scheduler.Speed();
 	this._engine = new ROT.Engine(this._scheduler);
-	
-	//add the player
-	this.addEntityAtRandomPosition(player, 0);
-	
-	//add random enemies to each floor
-	for (var z = 0; z < this._depth; z++) {
-		//15 entities per floor
-		for (var i = 0; i < 15; i++) {
-			var entity = Game.EntityRepository.createRandom();
-			//add rando entity
-			this.addEntityAtRandomPosition(entity, z);
-			//level up entity based on floor level
-			if (entity.hasMixin('ExperienceGainer')) {
-				for (var level = 0; level < z; level++) {
-					entity.giveExperience(entity.getNextLevelExperience() -
-						entity.getExperience());
-				}
-			}
-		}
-		for (var i = 0; i < 10; i++) {
-			//add random item
-			this.addItemAtRandomPosition(Game.ItemRepository.createRandom(), z);
-		}
-	}
 	//explored array
 	this._explored = new Array(this._depth);
 	this._setupExploredArray();
-
-	//add weapons and armor to map with rando!
-	var templates = ['dagger', 'sword', 'staff', 
-									'tunic', 'chainmail', 'platemail'];
-	for (var i = 0; i < templates.length; i++) {
-		this.addItemAtRandomPosition(Game.ItemRepository.create(templates[i]),
-			Math.floor(this._depth * Math.random()));
-	}
 };
+
+
+// 	//add the player
+// 	this.addEntityAtRandomPosition(player, 0);
+	
+// 	//add random enemies to each floor
+// 	for (var z = 0; z < this._depth; z++) {
+// 		//15 entities per floor
+// 		for (var i = 0; i < 15; i++) {
+// 			var entity = Game.EntityRepository.createRandom();
+// 			//add rando entity
+// 			this.addEntityAtRandomPosition(entity, z);
+// 			//level up entity based on floor level
+// 			if (entity.hasMixin('ExperienceGainer')) {
+// 				for (var level = 0; level < z; level++) {
+// 					entity.giveExperience(entity.getNextLevelExperience() -
+// 						entity.getExperience());
+// 				}
+// 			}
+// 		}
+// 		for (var i = 0; i < 10; i++) {
+// 			//add random item
+// 			this.addItemAtRandomPosition(Game.ItemRepository.createRandom(), z);
+// 		}
+// 	}
+	
+
+// 	//add weapons and armor to map with rando!
+// 	var templates = ['dagger', 'sword', 'staff', 
+// 									'tunic', 'chainmail', 'platemail'];
+// 	for (var i = 0; i < templates.length; i++) {
+// 		this.addItemAtRandomPosition(Game.ItemRepository.create(templates[i]),
+// 			Math.floor(this._depth * Math.random()));
+// 	}
+// };
 
 //getters
 
@@ -212,7 +215,11 @@ Game.Map.prototype.addEntity = function(entity) {
 	if (entity.hasMixin('Actor')) {
 		this._scheduler.add(entity, true);
 	}
-}
+	//if entity is player, set player
+	if (entity.hasMixin(Game.EntityMixins.PlayerActor)) {
+		this._player = entity;
+	}
+};
 
 Game.Map.prototype.removeEntity = function(entity) {
 	//remove the entity from the map
@@ -224,7 +231,11 @@ Game.Map.prototype.removeEntity = function(entity) {
 	if (entity.hasMixin('Actor')) {
 		this._scheduler.remove(entity);
 	}
-}
+	//if entity is player, update the player field
+	if (entity.hasMixin(Game.EntityMixins.PlayerActor)) {
+		this._player = undefined;
+	}
+};
 
 Game.Map.prototype.addEntityAtRandomPosition = function(entity, z) {
 	var position = this.getRandomFloorPosition(z);

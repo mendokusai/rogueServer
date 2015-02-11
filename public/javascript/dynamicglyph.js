@@ -9,12 +9,16 @@ Game.DynamicGlyph = function(properties) {
 	this._attachedMixins = {};
 	//create a similar object for groups
 	this._attachedMixinGroups = {};
-	//setup the object's mixins
+	//set up object for listeners
+	this._listeners = {};
+	
+	//set up object mixins
 	var mixins = properties['mixins'] || [];
 	for (var i = 0; i < mixins.length; i++) {
 		//copy properties of mixins except init, don't override
 		for (var key in mixins[i]) {
-			if (key != 'init' && key != 'name' && !this.hasOwnProperty(key)) {
+			if (key != 'init' && key != 'name' && key != 'listeners'
+				&& !this.hasOwnProperty(key)) {
 				this[key] = mixins[i][key];
 			}
 		}
@@ -24,6 +28,17 @@ Game.DynamicGlyph = function(properties) {
 		if (mixins[i].groupName) {
 			this._attachedMixinGroups[mixins[i].groupName] = true;
 		}	
+		//add listeners
+		if (mixins[i].groupName) {
+			for (var key in mixins[i].listeners) {
+				//add, if we don't already have a key for this event in listeners
+				if (!this._listeners[key]) {
+					this._listeners[key] = [];
+				}
+				//add listener
+				this._listeners[key].push(mixins[i].listeners[key]);
+			}
+		}
 		//if call the init function if there is one
 		if (mixins[i].init) {
 			mixins[i].init.call(this, properties);
@@ -40,6 +55,19 @@ Game.DynamicGlyph.prototype.hasMixin = function(obj) {
 		return this._attachedMixins[obj.name];
 	} else {
 		return this._attachedMixins[obj] || this._attachedMixinGroups[obj];
+	}
+};
+
+Game.DynamicGlyph.prototype.raiseEvent = function(event) {
+	//make sure we have at least one listener
+	if (!this._listeners[event]) {
+		return;
+	}
+	//extract any argument passed, removing the event name
+	var args = Array.prototype.slice.call(arguments, 1)
+	//involke each listener, with this entity as context and args
+	for (var i = 0; i < this._listeners[event].length; i++) {
+		this._listeners[event][i].apply(this, args);
 	}
 };
 

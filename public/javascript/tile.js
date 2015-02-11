@@ -53,6 +53,20 @@ Game.Tile.stairsDownTile = new Game.Tile({
 	blocksLight: false
 });
 
+Game.Tile.holeToCavernTile = new Game.Tile({
+	character: '✸',
+	foreground: 'red',
+	walkable: true,
+	blocksLight: false
+});
+
+Game.Tile.waterTile = new Game.Tile({
+	character: '~',
+	foreground: 'blue',
+	walkable: false,
+	blocksLight: false
+});
+
 Game.getNeighborPositions = function(x, y) {
 	var tiles = [];
 	//generate all possible offsets
