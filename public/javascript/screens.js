@@ -4,8 +4,8 @@ Game.Screen.startScreen = {
 	enter: function() { console.log("Entered start screen");	},
 	exit: function() { console.log("Exited start screen."); },
 	render: function(display) {
-		display.drawText(1,1, "%c{red}Javascript Roguelike");
-		display.drawText(1,2, "Press [Enter] to start your descent!");
+		display.drawText(24,10, "%c{red}Javascript Roguelike Dungeon");
+		display.drawText(20,12, "%c{yellow}Press [Enter] to start your descent!");
 	},
 	handleInput: function(inputType, inputData) {
 		if (inputType === 'keydown') {
@@ -22,12 +22,11 @@ Game.Screen.playScreen = {
 	_player: null,
 	_gameEnded: false,
 	_subScreen: null,
-
 	enter: function() {	
 
 		var width = 100;
 		var height = 48;
-		var depth = 6;
+		var depth = 2;
 
 		//greate map from tiles and player
 		var tiles = new Game.Builder(width, height, depth).getTiles();
@@ -173,11 +172,6 @@ Game.Screen.playScreen = {
 		}
 
 		if (inputType === 'keydown') {
-			if (inputData.keyCode === ROT.VK_RETURN) {
-				Game.switchScreen(Game.Screen.winScreen);
-			} else if (inputData.keyCode === ROT.VK_ESCAPE) {
-				Game.switchScreen(Game.Screen.loseScreen);
-			} else {
 				//movement
 				if (inputData.keyCode === ROT.VK_LEFT) {
 					this.move(-1, 0, 0);
@@ -236,7 +230,6 @@ Game.Screen.playScreen = {
 				}
 				//unlock engine on move
 				this._player.getMap().getEngine().unlock();
-			}
 		} else if (inputType === 'keypress') {
 			var keyChar = String.fromCharCode(inputData.charCode);
 			if (keyChar === ">") {
@@ -371,7 +364,7 @@ Game.Screen.ItemListScreen.prototype.handleInput = function(inputType, inputData
 		//handle pressing return when items are selected
 		} else if (inputData.keyCode === ROT.VK_RETURN) {
 			this.executeOKFunction();
-		} else if (this._canSelectItem && this._hasNoItemOption && inputData.keyCode === ROT.VK_O) {
+		} else if (this._canSelectItem && this._hasNoItemOption && inputData.keyCode === ROT.VK_0) {
 			this._selectedIndices = {};
 			this.executeOKFunction();
 		// handle pressing a letter if we can select
@@ -424,7 +417,6 @@ Game.Screen.wieldScreen = new Game.Screen.ItemListScreen({
 	canSelectMultipleItems: false,
 	hasNoItemsOption: true,
 	isAcceptable: function(item) {
-		debugger;
 		return item && item.hasMixin('Equippable') && item.isWieldable();
 	},
 	ok: function(selectedItems) {
@@ -485,6 +477,7 @@ Game.Screen.eatScreen = new Game.Screen.ItemListScreen({
 	canSelect: true,
 	canSelectMultipleItems: false,
 	isAcceptable: function(item) {
+		console.log(item);
 		return item && item.hasMixin('Edible');
 	},
 	ok: function(selectedItems) {

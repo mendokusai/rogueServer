@@ -475,7 +475,7 @@ Game.EntityMixins.FoodConsumer = {
 	modifyFullnessBy: function(points) {
 		this._fullness = this._fullness + points;
 		if (this._fullness <= 0) {
-			this.kill("You hunger for food proves to unhinge you need for life.");
+			this.kill("You hunger for food unravels you connection to life.");
 		} else if (this._fullness > this._maxFullness) {
 			this.kill("Your gluttony proves your undoing. You choke and gurgle a final sad noise.");
 		}
@@ -497,7 +497,7 @@ Game.EntityMixins.FoodConsumer = {
 			return 'Full';
 		//Anything else = nothungy
 		} else {
-			return 'Content';
+			return 'Not Hungry';
 		}
 	}
 };

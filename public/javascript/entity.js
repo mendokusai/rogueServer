@@ -161,7 +161,7 @@ Game.Entity.prototype.tryMove = function(x, y, z, map) {
 			if (items.length === 1) {
 				Game.sendMessage(this, "You see %s.", [items[0].describeA()]);
 			} else {
-				Game.sendMessage(tis, "There are several objects here.");
+				Game.sendMessage(this, "There are several objects here.");
 			}
 		}
 		return true;
