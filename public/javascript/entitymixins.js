@@ -84,6 +84,13 @@ Game.EntityMixins.Attacker = {
 		}
 		return this._attackValue + modifier;
 	},
+	increaseAttackValue: function(value) {
+		//if no value passe,d default to 2
+		value = value || 2;
+		//add to attack value
+		this._attackValue += value;
+		Game.sendMessage(this, 'You look like you bench, bro.');
+	},
 	attack: function(target) {
 		//remove entity if attackable
 		if (target.hasMixin('Destructable')) {
@@ -127,6 +134,24 @@ Game.EntityMixins.Destructable = {
 	getMaxHp: function() {
 		return this._maxHp;
 	},
+	setHp: function(hp) {
+		this._hp = hp;
+	},
+	increaseDefenseValue: function(value) {
+		//if no value passed, default to 2
+		value = value || 2;
+		//add to the defense value
+		this._defenseValue += value;
+		Game.sendMessage(this, 'You look tougher.');
+	},
+	increaseMaxHp: function(value) {
+		//if no value passed, default to 10
+		value = value | 10;
+		//add to both maxHP and Hp
+		this._maxHp += value;
+		this._hp += value;
+		Game.sendMessage(this, 'Your the image of health.');
+	},
 	takeDamage: function(attacker, damage) {
 		this._hp -= damage;
 		//if 0 or less, remove
@@ -137,6 +162,21 @@ Game.EntityMixins.Destructable = {
 				this.tryDropCorpse();
 			}
 			this.kill();
+			//Give the attacker exp
+			if (attacker.hasMixin('ExperienceGainer')) {
+				var exp = this.getMaxHp() + this.getDefenseValue();
+				if (this.hasMixin('Attacker')) {
+					exp += this.getAttackValue();
+				}
+				//Account for level difference
+				if (this.hasMixin('ExperienceGainer')) {
+					exp -= (attacker.getLevel() - this.getLevel()) * 3;
+				}
+				//only give exp if more than 0
+				if (exp > 0) {
+					attacker.giveExperience(exp);
+				}
+			}
 		}
 	}
 };
@@ -166,6 +206,13 @@ Game.EntityMixins.Sight = {
 	},
 	getSightRadius: function() {
 		return this._sightRadius;
+	},
+	increaseSightRadius: function(value) {
+		//if no value passed, default to 1
+		value = value || 1;
+		//add to sight radius
+		this._sightRadius += value;
+		Game.sendMessage(this, 'Your eyes have become more adjusted to the dark.');
 	},
 	canSee: function(entity) {
 		//if not on same map, exit early
@@ -264,6 +311,79 @@ Game.EntityMixins.TaskActor = {
 		}
 	}
 };
+
+Game.EntityMixins.ExperienceGainer = {
+	name: 'ExperienceGainer',
+	init: function(template) {
+		this._level = template['level'] || 1;
+		this._experience = template['experience'] || 0;
+		this._statPointsPerLevel = template['statPointsPerLevel'] || 1;
+		this._statPoints = 0;
+		//dtermine what stats can be leveled up
+		this._statOptions = [];
+		if (this.hasMixin('Attacker')) {
+			this._statOptions.push(['Increase attack value', this.increaseAttackValue]);
+		}
+		if (this.hasMixin('Destructable')) {
+			this._statOptions.push(['Increase defense value', this.increaseDefenseValue]);
+			this._statOptions.push(['Increase max health', this.increaseMaxHp]);
+		}
+		if (this.hasMixin('Sight')) {
+			this._statOptions.push(['Increase sight range', this.increaseSightRadius]);
+		}
+	},
+	getLevel: function() {
+		return this._level;
+	},
+	getExperience: function() {
+		return this._experience;
+	},
+	getNextLevelExperience: function() {
+		return (this._level * this._level) * 10;
+	},
+	getStatPoints: function() {
+		return this._statPoints;
+	},
+	setStatPoints: function(statPoints) {
+		this._statPoints = statPoints;
+	},
+	getStatOptions: function() {
+		return this._statOptions;
+	},
+	giveExperience: function(points) {
+		var statPointsGained = 0;
+		var levelsGained = 0;
+		//loop until we've allocated all points
+		while (points > 0) {
+			//check if adding in points wil surpass level 
+			if (this._experience + points >= this.getNextLevelExperience()) {
+				//fill our exp till next threshold
+				var usedPoints = this.getNextLevelExperience() - this._experience;
+				points -= usedPoints;
+				this._experience += usedPoints;
+				//level up entity!
+				this._level++;
+				levelsGained++;
+				this._statPoints += this._statPointsPerLevel;
+				statPointsGained += this._statPointsPerLevel;
+			} else {
+				//simple case -- give exp
+				this._experience += points;
+				points = 0;
+			}
+		}
+		if (levelsGained > 0) {
+			Game.sendMessage(this, 'Your skills have increased to level %d.', [this._level]);
+			//heal the entity if possible
+			if (this.hasMixin('Destructable')) {
+				this.setHp(this.getMaxHp());
+			}
+			if (this.hasMixin('StatGainer')) {
+				this.onGainLevel();
+			}
+		}
+	}
+}
 
 Game.EntityMixins.InventoryHolder = {
 	name: 'InventoryHolder',
@@ -458,5 +578,30 @@ Game.EntityMixins.Equipper = {
 		if (this._armor === item) {
 			this.takeOff();
 		}
+	}
+};
+
+Game.EntityMixins.RandomStatGainer = {
+	name: 'RandomStatGainer',
+	groupName: 'StatGainer',
+	onGainLevel: function(){
+		var statOptions = this.getStatOptions();
+
+		//randomly select stat and execute callback for each point
+		while (this.getStatPoints() > 0) {
+			//call stat increase function with this context
+			statOptions.random()[1].call(this);
+			this.setStatPoints(this.getStatPoints() - 1);
+		}
+	}
+};
+
+Game.EntityMixins.PlayerStatGainer = {
+	name: 'PlayerStatGainer',
+	groupName: 'StatGainer',
+	onGainLevel: function() {
+		//setup gain stat screen and show
+		Game.Screen.gainStatScreen.setup(this);
+		Game.Screen.playScreen.setSubScreen(Game.Screen.gainStatScreen);
 	}
 };
