@@ -31,16 +31,13 @@ Game.EntityMixins.FungusActor = {
 	name: 'FungusActor',
 	groupName: 'Actor',
 	init: function() {
-		this._growthsRemaining = 5;
+		this._growthsRemaining = 10; //was 5
 	},
 	act: function() {
 
 		//check to see if spawn child
 		if (this._growthsRemaining > 0) {
-			if (Math.random() <= 0.02) {
-				//generate coordinates of random adjuacent square
-				//generate offset [-1,0,1] for x & y
-				//generate number 0-2, subtract 1
+			if (Math.random() <= 0.01) {  					//was 2.
 				var xOffset = Math.floor(Math.random() * 3) - 1;
 				var yOffset = Math.floor(Math.random() * 3) - 1;
 				//check to make sure spawn on same tile
@@ -68,24 +65,6 @@ Game.EntityMixins.FungusActor = {
 	}
 }
 
-Game.EntityMixins.WanderActor = {
-	name: 'WanderActor',
-	groupName: 'Actor',
-	act: function() {
-		// flip coint o determine if moving by 1
-		var moveOffset = (Math.round(Math.random()) === 1) ? 1 : -1;
-		// 50/50 towards x or y
-		if (Math.round(Math.random()) === 1) {
-			this.tryMove(this.getX() + moveOffset, 
-									 this.getY(), this.getZ());
-		} else {
-			this.tryMove(this.getX(), 
-									 this.getY() + moveOffset, 
-									 this.getZ());
-		}
-	}
-};
-
 Game.EntityMixins.Attacker = {
 	name: 'Attacker',
 	groupName: 'Attacker',
@@ -93,7 +72,17 @@ Game.EntityMixins.Attacker = {
 		this._attackValue = template['attackValue'] || 1;
 	},
 	getAttackValue: function() {
-		return this._attackValue;
+		var modifier = 0;
+		//if we can equip items, take into accoutn weapons and _armor
+		if (this.hasMixin(Game.EntityMixins.Equipper)) {
+			if (this.getWeapon()) {
+				modifier += this.getWeapon().getAttackValue();
+			}
+			if (this.getArmor()) {
+				modifier += this.getArmor().getAttackValue();
+			}
+		}
+		return this._attackValue + modifier;
 	},
 	attack: function(target) {
 		//remove entity if attackable
@@ -120,7 +109,17 @@ Game.EntityMixins.Destructable = {
 		this._defenseValue = template['defenseValue'] || 0;
 	},
 	getDefenseValue: function() {
-		return this._defenseValue;
+		var modifier = 0;
+		//if we can equip items consider weapon and armor
+		if (this.hasMixin(Game.EntityMixins.Equipper)) {
+			if (this.getWeapon()) {
+				modifier += this.getWeapon().getDefenseValue();
+			}
+			if (this.getArmor()) {
+				modifier += this.getArmor().getDefenseValue();
+			}
+		}
+		return this._defenseValue + modifier;
 	},
 	getHp: function() {
 		return this._hp;
@@ -167,8 +166,104 @@ Game.EntityMixins.Sight = {
 	},
 	getSightRadius: function() {
 		return this._sightRadius;
+	},
+	canSee: function(entity) {
+		//if not on same map, exit early
+		if (!entity || this._map !== entity.getMap() || this._z !== entity.getZ()) {
+			return false;
+		}
+		var otherX = entity.getX();
+		var otherY = entity.getY();
+		//if not in a fieled view, then we won't be seen
+		if ((otherX - this._x) * (otherX - this._x) +
+			(otherY - this._y) * (otherY - this._y) >
+			this._sightRadius * this._sightRadius) {
+			return false;
+		}
+
+		//comput FOV, check coordinates
+		var found = false;
+		this.getMap().getFov(this.getZ()).compute(
+			this.getX(), this.getY(),
+			this.getSightRadius(),
+			function(x, y, radius, visibility) {
+				if (x === otherX && y === otherY) {
+					found = true;
+				}
+			});
+		return found;
 	}
-}
+};
+
+Game.EntityMixins.TaskActor = {
+	name: 'TaskActor',
+	groupName: 'Actor',
+	init: function(template) {
+		//load tasks
+		this._tasks = template['tasks'] || ['wander'];
+	},
+	act: function() {
+		//iterate through all our tasks
+		for (var i = 0; i < this._tasks.length; i++) {
+			if (this.canDoTask(this._tasks[i])) {
+				//if we can perform the task, execute the function
+				this[this._tasks[i]]();
+				return;
+			}
+		}
+	},
+	canDoTask: function(task) {
+		if (task === 'hunt') {
+			return this.hasMixin('Sight') && this.canSee(this.getMap().getPlayer());
+		} else if (task === 'wander') {
+			return true;
+		} else {
+			throw new Error('Tried to perform undefined task ' + task);
+		}
+	},
+	hunt: function() {
+		var player = this.getMap().getPlayer();
+		//if we are adjacent to the player, then attack instead of hunting
+		var offsets = Math.abs(player.getX() - this.getX()) +
+		Mapth.abs(player.getY() - this.getY());
+		if (offsets === 1) {
+			if (this.hasMixin('Attacker')) {
+				this.attack(player);
+				retrun;
+			}
+		}
+		//generate path and move to tile
+		var source = this;
+		var z = source.getZ();
+		var path = new ROT.Path.AStar(player.getX(), player.getY(), function(x, y) {
+			//if an entity is present at tile, can't move there
+			var entity = source.getMap().getEntityAt(x, y, z);
+			if (entity && entity !== player && entity !== source) {
+				return false;
+			}
+			return source.getMap().getTile(x, y, z).isWalkable();
+		}, {topology: 4});
+		//once we've got the path, move to second cell
+		//passed in callback
+		var count = 0;
+		path.compute(source.getX(), source.getY(), function(x, y) {
+			if (count == 1) {
+				source.tryMove(x, y, z);
+			}
+			count++;
+		});
+	},
+	wander: function() {
+		//50/50 to determine moving by 1 in + /- direction
+		var moveOffset = (Math.round(Math.random()) === 1) ? 1 : -1;
+		//flip coin for x or y direction
+		if (Math.round(Math.random()) === 1) {
+			this.tryMove(this.getX() + moveOffset, this.getY(), this.getZ());
+		} else {
+			this.tryMove(this.getX(), this.getY() + moveOffset, this.getZ());
+		}
+	}
+};
 
 Game.EntityMixins.InventoryHolder = {
 	name: 'InventoryHolder',
@@ -195,6 +290,10 @@ Game.EntityMixins.InventoryHolder = {
 		return false;
 	},
 	removeItem: function(i) {
+		//if we can equip items, unequip item removing..
+		if (this._items[i] && this.hasMixin(Game.EntityMixins.Equipper)) {
+			this.unequip(this._items[i]);
+		}
 		//clear inventory slot
 		this._items[i] = null;
 	},
@@ -243,7 +342,7 @@ Game.EntityMixins.InventoryHolder = {
 Game.EntityMixins.FoodConsumer = {
 	name: 'FoodConsumer',
 	init: function(template) {
-		this._maxFullness = template['maxFullness'] || 100;
+		this._maxFullness = template['maxFullness'] || 1000;
 		//start halfway to max fullness 
 		this._fullness = template['fullness'] || (this._maxFullness /2);
 		//number of points to decrease fullness by every turn
@@ -326,3 +425,38 @@ Game.sendMessageNearby = function(map, centerX, centerY, centerZ, message, args)
 		}
 	}
 }
+
+Game.EntityMixins.Equipper = {
+	name: 'Equipper',
+	init: function(template) {
+		this._weapon = null;
+		this._armor = null;
+	},
+	wield: function(item) {
+		this._weapon = item;
+	},
+	unwield: function() {
+		this._weapon = null;
+	},
+	wear: function(item) {
+		this._armor = item;
+	},
+	takeOff: function() {
+		this._armor = item;
+	},
+	getWeapon: function() {
+		return this._weapon;
+	},
+	getArmor: function() {
+		return this._armor;
+	},
+	unequip: function(item) {
+		//helper function before getting rid of item
+		if (this._weapon == item) {
+			this.unwield();
+		}
+		if (this._armor === item) {
+			this.takeOff();
+		}
+	}
+};

@@ -11,6 +11,8 @@ Game.Entity = function(properties) {
 	this._z = properties['z'] || 0;
 	this._map = null;
 	this._alive = true;
+	//acting speed
+	this._speed = properties['speed'] || 1000;
 
 	//create an obj to keep track of mixins attached to entity based on name
 	this._attachedMixins = {};
@@ -55,6 +57,14 @@ Game.Entity.extend(Game.DynamicGlyph);
 // Game.Entity.prototype.setName = function(name) {
 // 	this._name = name;
 // }
+
+Game.Entity.prototype.setSpeed = function(speed) {
+	this._speed = speed;
+};
+
+Game.Entity.prototype.getSpeed = function() {
+	return this._speed;
+};
 
 Game.Entity.prototype.isAlive = function() {
 	return this._alive;

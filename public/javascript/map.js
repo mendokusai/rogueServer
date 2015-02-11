@@ -17,7 +17,7 @@ Game.Map = function(tiles, player) {
 	this._items = {};
 	
 	//engine & scheduler
-	this._scheduler = new ROT.Scheduler.Simple();
+	this._scheduler = new ROT.Scheduler.Speed();
 	this._engine = new ROT.Engine(this._scheduler);
 	
 	//add the player
@@ -38,9 +38,21 @@ Game.Map = function(tiles, player) {
 	//explored array
 	this._explored = new Array(this._depth);
 	this._setupExploredArray();
+
+	//add weapons and armor to map with rando!
+	var templates = ['dagger', 'sword', 'staff', 
+									'tunic', 'chainmail', 'platemail'];
+	for (var i = 0; i < templates.length; i++) {
+		this.addItemAtRandomPosition(Game.ItemRepository.create(templates[i]),
+			Math.floor(this._depth * Math.random()));
+	}
 };
 
 //getters
+
+Game.Map.prototype.getPlayer = function() {
+	return this._player;
+};
 
 Game.Map.prototype._setupExploredArray = function() {
 	for (var z = 0; z < this._depth; z++) {
@@ -242,7 +254,7 @@ Game.Map.prototype.getEntitiesWithinRadius = function(centerX, centerY,
 
 Game.Map.prototype.updateEntityPosition = function(entity, oldX, oldY, oldZ) {
 	//delete the old key if it is the same entity
-	if (oldX) {
+	if (typeof oldX === 'number') {
 		var oldKey = oldX + ',' + oldY + ',' + oldZ;
 		if (this._entities[oldKey] == entity) {
 			delete this._entities[oldKey];
