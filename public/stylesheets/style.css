@@ -44,7 +44,7 @@
       position: relative;
       top: -34em;
       width: 55em;
-      left: 3em;
+      left: 2.5em;
       }
     #directions {
       position: relative;
@@ -59,9 +59,12 @@
       #directions {
         top: 0em;
       }*/
-    }
-
-    #actions ul button {
+      #actions ul button {
       width: 12em;
+      left: 4em;
+      }
+    }
+    
+    
 
     }
