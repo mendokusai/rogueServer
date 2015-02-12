@@ -155,7 +155,11 @@ Game.Screen.playScreen = {
 
 	},
 
-	handleInput: function(inputType, inputData) {
+	handleInput: function(inputType, inputData, movement) {
+		if (movement) {
+			console.log(movement);
+		}
+
 		//if game is over, enter will trigger losing screen
 		if (this._gameEnded) {
 			if (inputType === 'keydown' && 
@@ -181,6 +185,7 @@ Game.Screen.playScreen = {
 					this.move(0, -1, 0);
 				} else if (inputData.keyCode === ROT.VK_DOWN) {
 					this.move(0, 1, 0);
+					movement = '';
 				} else if (inputData.keyCode === ROT.VK_I) {
 						//show inventory
 						this.showItemsSubScreen(Game.Screen.inventoryScreen, this._player.getItems(),
@@ -197,15 +202,14 @@ Game.Screen.playScreen = {
 							'You have nothing to eat.');
 						return;
 				} else if (inputData.keyCode === ROT.VK_W) {
-					if (inputData.shiftKey) {
-						//show the wear screen
-						this.showItemsSubScreen(Game.Screen.wearScreen, this._player.getItems(),
-							'You have nothing to wear.');
-					} else {
-						//show wield screen
-						this.showItemsSubScreen(Game.Screen.wieldScreen, this._player.getItems(),
-							'You have nothing to wield.');
-					}
+					//show wield screen
+					this.showItemsSubScreen(Game.Screen.wieldScreen, this._player.getItems(),
+						'You have nothing to wield.');
+					return;
+				} else if (inputData.keyCode === ROT.VK_A) {
+					//show the wear screen
+					this.showItemsSubScreen(Game.Screen.wearScreen, this._player.getItems(),
+						'You have nothing to wear.');
 					return;
 				} else if (inputData.keyCode == ROT.VK_COMMA) {
 						var items = this._player.getMap().getItemsAt(this._player.getX(),

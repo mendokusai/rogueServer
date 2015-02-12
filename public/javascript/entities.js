@@ -59,7 +59,7 @@ Game.EntityRepository.define('bat', {
 
 Game.EntityRepository.define('newt', {
 	name: 'newt',
-	character: '%',
+	character: '±',
 	foreground: 'blue',
 	maxHp: 3,
 	attackValue: 2,
@@ -115,7 +115,7 @@ Game.EntityRepository.define('giant zombie', {
 
 Game.EntityRepository.define('slime', {
 	name: 'slime', 
-	character: 'û',
+	character: 'ů',
 	foreground: 'lightGreen',
 	maxHp: 10,
 	attackValue: 5,

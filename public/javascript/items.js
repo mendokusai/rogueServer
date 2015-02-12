@@ -33,7 +33,10 @@ Game.ItemRepository.define('pumpkin', {
 Game.ItemRepository.define('rock', {
 	name: 'rock',
 	character: '*',
-	foreground: 'white'
+	foreground: 'white',
+    attackValue: 2,
+    wieldable: true,
+    mixins: [Game.ItemMixins.Equippable]
 });
 
 Game.ItemRepository.define('corpse', {
@@ -50,7 +53,7 @@ Game.ItemRepository.define('corpse', {
 // Weapons
 Game.ItemRepository.define('dagger', {
     name: 'dagger',
-    character: ')',
+    character: 'í',
     foreground: 'gray',
     attackValue: 5,
     wieldable: true,
@@ -61,7 +64,7 @@ Game.ItemRepository.define('dagger', {
 
 Game.ItemRepository.define('sword', {
     name: 'sword',
-    character: ')',
+    character: 'ļ',
     foreground: 'white',
     attackValue: 10,
     wieldable: true,
@@ -72,7 +75,7 @@ Game.ItemRepository.define('sword', {
 
 Game.ItemRepository.define('staff', {
     name: 'staff',
-    character: ')',
+    character: 'ԇ',
     foreground: 'yellow',
     attackValue: 5,
     defenseValue: 3,
@@ -85,7 +88,7 @@ Game.ItemRepository.define('staff', {
 // Wearables
 Game.ItemRepository.define('tunic', {
     name: 'tunic',
-    character: '[',
+    character: 'ӿ',
     foreground: 'green',
     defenseValue: 2,
     wearable: true,
@@ -96,7 +99,7 @@ Game.ItemRepository.define('tunic', {
 
 Game.ItemRepository.define('chainmail', {
     name: 'chainmail',
-    character: '[',
+    character: 'ѫ',
     foreground: 'white',
     defenseValue: 4,
     wearable: true,
@@ -107,7 +110,7 @@ Game.ItemRepository.define('chainmail', {
 
 Game.ItemRepository.define('platemail', {
     name: 'platemail',
-    character: '[',
+    character: 'ѫ',
     foreground: 'aliceblue',
     defenseValue: 6,
     wearable: true,

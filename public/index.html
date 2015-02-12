@@ -1,19 +1,68 @@
 <!doctype html>
 <html>
   <head>
-    <title>RogueCity</title>
+    <title id='title'>RogueCity</title>
     <link rel="stylesheet" href="stylesheets/skeleton.css">
     <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
     <link href='http://fonts.googleapis.com/css?family=Cabin+Sketch:400,700' rel='stylesheet' type='text/css'>
      <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="//cdn.rawgit.com/namuol/cheet.js/master/cheet.min.js"
+        type="text/javascript"></script>
   </head>
   <body>
+    <div class="container" id='title'>
+    <div class="row">
+    <div class="twelve columns">
     <h1>RogueCity</h1>
-    <container></container>
+    </div>
+    </div>
+    </div>
+    <container id="canvas"></container>
     <footer>
-      <p>Beware: Game is Crazy Buggy right now! ALPHA-grade!</p>
+    <div class="container">
+    <div class="row">
+    <div class="twelve columns">
+    <p>Beware: Game is Crazy Buggy right now! ALPHA-grade!</p>
+    </div>
+    </div>
+    </div>
+    <div class="container" id="actions">
+    <div class="row">
+    <ul>
+      <div class="two columns">
+      <li><button id="equip" value="weapon">Weapon (W)</button></li>
+      </div>
+      <div class="two columns">
+      <li><button id="wear" value="wear">Equipment (A)</button></li>
+      </div>
+      <div class="two columns">
+      <li><button id="eat" value="eat">Eat (E)</button></li>
+      </div>
+      <div class="two columns">
+      <li><button id="drop" value="drop">Drop (D)</button></li>
+      </div>
+      <div class="two columns">
+      <li><button id="pickUp" value="grab">Grab (,)</button></li>
+      </div>
+    </ul>
+    </div>
+    </div>
+    <div class="container" id="directions">
+    <div class="row">
+    <div class="twelve columns">
+    <ul>
+      <li><button id="up" value="up">Up</button></li>
+      <li><button id="down" value="down">Down</button></li>
+      <li><button id="left" value="left">Left</button></li>
+      <li><button id="right" value="right">Right</button></li>
+      <li><button id="enter" value="enter">Start</button></li>
+    </ul>
+    </div>
+    </div>
+    </div>
     </footer>
+
    
    
     <script src="javascript/rot.js"></script>
@@ -35,6 +84,7 @@
     <script src="javascript/repository.js"></script>
     <script src="javascript/entities.js"></script>
     <script src="javascript/items.js"></script>
+    <script src="javascript/jquerybuttons.js"></script>
     
     <script>
       var socket = io();

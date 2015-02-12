@@ -25,40 +25,6 @@ Game.Map = function(tiles) {
 };
 
 
-// 	//add the player
-// 	this.addEntityAtRandomPosition(player, 0);
-	
-// 	//add random enemies to each floor
-// 	for (var z = 0; z < this._depth; z++) {
-// 		//15 entities per floor
-// 		for (var i = 0; i < 15; i++) {
-// 			var entity = Game.EntityRepository.createRandom();
-// 			//add rando entity
-// 			this.addEntityAtRandomPosition(entity, z);
-// 			//level up entity based on floor level
-// 			if (entity.hasMixin('ExperienceGainer')) {
-// 				for (var level = 0; level < z; level++) {
-// 					entity.giveExperience(entity.getNextLevelExperience() -
-// 						entity.getExperience());
-// 				}
-// 			}
-// 		}
-// 		for (var i = 0; i < 10; i++) {
-// 			//add random item
-// 			this.addItemAtRandomPosition(Game.ItemRepository.createRandom(), z);
-// 		}
-// 	}
-	
-
-// 	//add weapons and armor to map with rando!
-// 	var templates = ['dagger', 'sword', 'staff', 
-// 									'tunic', 'chainmail', 'platemail'];
-// 	for (var i = 0; i < templates.length; i++) {
-// 		this.addItemAtRandomPosition(Game.ItemRepository.create(templates[i]),
-// 			Math.floor(this._depth * Math.random()));
-// 	}
-// };
-
 //getters
 
 Game.Map.prototype.getPlayer = function() {

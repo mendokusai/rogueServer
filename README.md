@@ -7,3 +7,7 @@ Rogue City would not be possible without Coding Cookie's [Tutorial](http://www.c
 ##Main Library
 
 [ROT.js](http://ondras.github.io/rot.js/doc/)
+
+##Added Cheatcodes
+
+[Cheet](https://github.com/namuol/cheet.js)

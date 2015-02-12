@@ -48,7 +48,7 @@ Game.Tile.stairsUpTile = new Game.Tile({
 
 Game.Tile.stairsDownTile = new Game.Tile({
 	character: '>',
-	foreground: 'white',
+	foreground: 'gray',
 	walkable: true,
 	blocksLight: false
 });
@@ -61,7 +61,7 @@ Game.Tile.holeToCavernTile = new Game.Tile({
 });
 
 Game.Tile.waterTile = new Game.Tile({
-	character: '~',
+	character: 'x',
 	foreground: 'blue',
 	walkable: false,
 	blocksLight: false
