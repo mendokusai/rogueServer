@@ -156,98 +156,101 @@ Game.Screen.playScreen = {
 	},
 
 	handleInput: function(inputType, inputData, movement) {
-		if (movement) {
-			console.log(movement);
-		}
+		inputType = inputType || '';
+		inputData = inputData || {keyCode: null};
+		movement = movement || null;
 
-		//if game is over, enter will trigger losing screen
-		if (this._gameEnded) {
-			if (inputType === 'keydown' && 
-						inputData.keyCode === ROT.VK_RETURN) {
-				Game.switchScreen(Game.Screen.loseScree);
+		// if (inputType == 'keydown') {
+			//if game is over, enter will trigger losing screen
+			if (this._gameEnded) {
+				if (inputType === 'keydown' && 
+							inputData.keyCode === ROT.VK_RETURN) {
+					Game.switchScreen(Game.Screen.loseScreen);
+				}
+				//return to make sure user can't still play
+				return;
 			}
-			//return to make sure user can't still play
-			return;
-		}
-		//handle subscreen input if there is one
-		if (this._subScreen) {
-			this._subScreen.handleInput(inputType, inputData);
-			return;
-		}
+			//handle subscreen input if there is one
+			if (this._subScreen) {
+				this._subScreen.handleInput(inputType, inputData);
+				return;
+			}
 
-		if (inputType === 'keydown') {
-				//movement
-				if (inputData.keyCode === ROT.VK_LEFT) {
-					this.move(-1, 0, 0);
-				} else if (inputData.keyCode === ROT.VK_RIGHT) {
-					this.move(1, 0, 0);
-				} else if (inputData.keyCode === ROT.VK_UP) {
-					this.move(0, -1, 0);
-				} else if (inputData.keyCode === ROT.VK_DOWN) {
-					this.move(0, 1, 0);
-					movement = '';
-				} else if (inputData.keyCode === ROT.VK_I) {
-						//show inventory
-						this.showItemsSubScreen(Game.Screen.inventoryScreen, this._player.getItems(),
-							'You are not carrying anything.');
+			if (movement || inputType === 'keydown') {
+					console.log(movement);
+					//movement
+					if (movement === 'left' || inputData.keyCode === ROT.VK_LEFT) {
+						this.move(-1, 0, 0);
+					} else if (movement === 'right' || inputData.keyCode === ROT.VK_RIGHT) {
+						this.move(1, 0, 0);
+					} else if (movement === 'up' || inputData.keyCode === ROT.VK_UP) {
+						this.move(0, -1, 0);
+					} else if (movement === 'down' || inputData.keyCode === ROT.VK_DOWN) {
+						this.move(0, 1, 0);
+					} else if (inputData.keyCode === ROT.VK_I) {
+							//show inventory
+							this.showItemsSubScreen(Game.Screen.inventoryScreen, this._player.getItems(),
+								'You are not carrying anything.');
+							return;
+					} else if (inputData.keyCode === ROT.VK_D) {
+							//show the drop screen
+							this.showItemsSubScreen(Game.Screen.dropScreen, this._player.getItems(),
+								'You have nothing to drop.');
+							return;
+					} else if (inputData.keyCode === ROT.VK_E) {
+							//show drop screen
+							this.showItemsSubScreen(Game.Screen.eatScreen, this._player.getItems(),
+								'You have nothing to eat.');
+							return;
+					} else if (inputData.keyCode === ROT.VK_W) {
+						//show wield screen
+						this.showItemsSubScreen(Game.Screen.wieldScreen, this._player.getItems(),
+							'You have nothing to wield.');
 						return;
-				} else if (inputData.keyCode === ROT.VK_D) {
-						//show the drop screen
-						this.showItemsSubScreen(Game.Screen.dropScreen, this._player.getItems(),
-							'You have nothing to drop.');
+					} else if (inputData.keyCode === ROT.VK_A) {
+						//show the wear screen
+						this.showItemsSubScreen(Game.Screen.wearScreen, this._player.getItems(),
+							'You have nothing to wear.');
 						return;
-				} else if (inputData.keyCode === ROT.VK_E) {
-						//show drop screen
-						this.showItemsSubScreen(Game.Screen.eatScreen, this._player.getItems(),
-							'You have nothing to eat.');
-						return;
-				} else if (inputData.keyCode === ROT.VK_W) {
-					//show wield screen
-					this.showItemsSubScreen(Game.Screen.wieldScreen, this._player.getItems(),
-						'You have nothing to wield.');
-					return;
-				} else if (inputData.keyCode === ROT.VK_A) {
-					//show the wear screen
-					this.showItemsSubScreen(Game.Screen.wearScreen, this._player.getItems(),
-						'You have nothing to wear.');
-					return;
-				} else if (inputData.keyCode == ROT.VK_COMMA) {
-						var items = this._player.getMap().getItemsAt(this._player.getX(),
-																												 this._player.getY(), 
-																												 this._player.getZ());
-						//if there are no items, show a message
-						if (items && items.length === 1) {
-							var item = items[0];
-							//if only one item, pick up that ish, playa!
-							if (this._player.pickupItems([0])) {
-								Game.sendMessage(this._player, "You pick up %s.", [item.describeA()]);
+					} else if (inputData.keyCode == ROT.VK_COMMA) {
+							var items = this._player.getMap().getItemsAt(this._player.getX(),
+																													 this._player.getY(), 
+																													 this._player.getZ());
+							//if there are no items, show a message
+							if (items && items.length === 1) {
+								var item = items[0];
+								//if only one item, pick up that ish, playa!
+								if (this._player.pickupItems([0])) {
+									Game.sendMessage(this._player, "You pick up %s.", [item.describeA()]);
+								} else {
+									Game.sendMessage(this._player, "Your inventory is full. Nothing was picked up.")
+								}	
 							} else {
-								Game.sendMessage(this._player, "Your inventory is full. Nothing was picked up.")
+								this.showItemsSubScreen(Game.Screen.pickupScreen, items,
+									"There is nothing here to pick up.");
 							}	
-						} else {
-							this.showItemsSubScreen(Game.Screen.pickupScreen, items,
-								"There is nothing here to pick up.");
-						}	
+					} else {
+						//not a valid key
+						return;
+					}
+					//unlock engine on move
+					this._player.getMap().getEngine().unlock();
+			} else if (inputType === 'keypress') {
+				var keyChar = String.fromCharCode(inputData.charCode);
+				if (keyChar === ">") {
+					this.move(0,0,1);
+				} else if (keyChar === '<') {
+					this.move(0,0,-1);
 				} else {
 					//not a valid key
 					return;
 				}
 				//unlock engine on move
-				this._player.getMap().getEngine().unlock();
-		} else if (inputType === 'keypress') {
-			var keyChar = String.fromCharCode(inputData.charCode);
-			if (keyChar === ">") {
-				this.move(0,0,1);
-			} else if (keyChar === '<') {
-				this.move(0,0,-1);
-			} else {
-				//not a valid key
-				return;
+				this._player.getMap().getEngine().unlock();			
+			} else if (inputType === null) {
+				console.log(movement);
 			}
-			//unlock engine on move
-			this._player.getMap().getEngine().unlock();			
-		}
-
+		// }
 	},
 	move: function(dX, dY, dZ) {
 		var newX = this._player.getX() + dX;
