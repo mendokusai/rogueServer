@@ -39,14 +39,13 @@
     
     <div class="container" id="directions">
     <div class="row">
-    <ul>
-      <li><button id="up" value="up">Up</button></li>
-      <li><button id="down" value="down">Down</button></li>
-      <li><button id="left" value="left">Left</button></li>
-      <li><button id="right" value="right">Right</button></li>
-      <li><button id="stairs" value="stairs">Stairs</button></li>
-      <li><button id="enter" value="enter">Start</button></li>
-    </ul>
+    
+    <button id="left" value="left">Left</button>
+    <button id="up" value="up">Up</button>
+    <button id="down" value="down">Down</button>
+    <button id="right" value="right">Right</button>
+    <button id="stairs" value="stairs">Stairs</button>
+    <button id="enter" value="enter">Start</button>
     </div>
     </div>
     </div>
@@ -77,6 +76,9 @@
     
     <script>
       var socket = io();
+      var gamedeets = Game.Screen;
+      socket.emit('game', function(gamedeets){
+      });
       // $('form').submit(function(){
       //   socket.emit('chat message', $('#m').val());
       //   $('#m').val('');

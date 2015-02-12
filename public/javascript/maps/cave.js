@@ -3,6 +3,50 @@ Game.Map.Cave = function(tiles, player) {
 	Game.Map.call(this, tiles);
 	//Add player
 	this.addEntityAtRandomPosition(player, 0);
+	//all the zombies!
+	for (var x = 0; x < this._depth; x++) {
+		//40 per floor! 60$$!!
+		for (var i = 0; i < 20; i++) {
+			var zombies = Game.EntityRepository.create('zombie');
+			this.addEntityAtRandomPosition(zombies, z);
+			if (zombies.hasMixin('ExperienceGainer')) {
+				for (var level = 0; level < x; level++) {
+					zombies.giveExperience(zombies.getNextLevelExperience() - 
+						zombies.getExperience());
+				}
+			}
+		}
+	}
+	
+
+	for (var x = 0; x < this._depth; x++) {
+		//40 per floor! 60$$!!
+		for (var i = 0; i < 20; i++) {
+			var zombies2 = Game.EntityRepository.create('fasterZombie');
+			this.addEntityAtRandomPosition(zombies, z);
+			if (zombies2.hasMixin('ExperienceGainer')) {
+				for (var level = 0; level < x; level++) {
+					zombies2.giveExperience(zombies.getNextLevelExperience() - 
+						zombies2.getExperience());
+				}
+			}
+		}
+	}
+
+	for (var x = 0; x < this._depth; x++) {
+		//40 per floor! 60$$!!
+		for (var i = 0; i < 10; i++) {
+			var zombies3 = Game.EntityRepository.create('fastZombie');
+			this.addEntityAtRandomPosition(zombies, z);
+			if (zombies3.hasMixin('ExperienceGainer')) {
+				for (var level = 0; level < x; level++) {
+					zombies3.giveExperience(zombies.getNextLevelExperience() - 
+						zombies3.getExperience());
+				}
+			}
+		}
+	}
+
 	//add random entites and items to each floor
 	for (var z = 0; z < this._depth; z++) {
 		//15 per floor

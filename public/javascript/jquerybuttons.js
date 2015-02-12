@@ -1,7 +1,3 @@
-Game.clickButton = function(clickInput) {
-	this._clickInput = clickInput;
-};
-
 
 
 cheet('↑ ↑ ↓ ↓ ← → ← → w a', function () {

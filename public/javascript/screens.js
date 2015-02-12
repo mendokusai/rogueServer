@@ -162,7 +162,7 @@ Game.Screen.playScreen = {
 
 		//if game is over, enter will trigger losing screen
 		if (this._gameEnded) {
-			if (inputType === 'keydown' && 
+			if (movement === 'start' || inputType === 'keydown' && 
 						inputData.keyCode === ROT.VK_RETURN) {
 				Game.switchScreen(Game.Screen.loseScreen);
 			}
@@ -227,17 +227,25 @@ Game.Screen.playScreen = {
 							this.showItemsSubScreen(Game.Screen.pickupScreen, items,
 								"There is nothing here to pick up.");
 						}	
-				} else {
-					//not a valid key
-					return;
 				}
 				//unlock engine on move
 					this._player.getMap().getEngine().unlock();
-			} else if (movement || inputType === 'keypress') {
+			}
+			if (movement === "stairs" || inputType === 'keypress') {
+				var playerXCoords = this._player.getX(),
+						playerYCoords = this._player.getY(),
+						playerZCoords = this._player.getZ();
+
+
+				var goingUp = ( this._player._map.getTile( playerXCoords, playerYCoords, playerZCoords )._char === ">" ) || false;
+
+				console.log("Movement: ", movement)
 				var keyChar = String.fromCharCode(inputData.charCode);
-				if (movement === "stairs" || keyChar === ">") {
+				if (keyChar === "<" || (movement === "stairs" && !goingUp)) {
+					console.log("In Char Code - going down")
 					this.move(0,0,1);
-				} else if (movement === "stairs" || keyChar === '<') {
+				} else if (keyChar === '>' || (movement === "stairs" && goingUp)) {
+					console.log("In Char Code - going up")
 					this.move(0,0,-1);
 				} else {
 					//not a valid key

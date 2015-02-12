@@ -48,8 +48,8 @@
       }
     #directions {
       position: relative;
-      top: -3em;
-      left: 12em;
+      top: -4em;
+      left: 6em;
       }
 
     @media (min-width: 400px) {

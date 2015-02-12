@@ -7,7 +7,7 @@ Game.PlayerTemplate = {
 	background: 'black',
 	maxHp: 40,
 	attackValue: 10,
-	sightRadius: 4,
+	sightRadius: 6,
 	inventorySlots: 22,
 	mixins: [
 			Game.EntityMixins.PlayerActor,
@@ -39,6 +39,54 @@ Game.EntityRepository.define('fungus', {
 			Game.EntityMixins.RandomStatGainer
 			]
 });
+
+Game.EntityRepository.define('fasterZombie', {
+	name: 'fasterZombie',
+	character: 'z',
+	foreground: 'red',
+	maxHp: 6,
+	speed: 500,
+	mixins: [
+		Game.EntityMixins.TaskActor,
+		Game.EntityMixins.Destructable,
+		Game.EntityMixins.Attacker,
+		Game.EntityMixins.CorpseDropper,
+		Game.EntityMixins.RandomStatGainer,
+		Game.EntityMixins.ExperienceGainer
+		]
+});
+
+Game.EntityRepository.define('fastZombie', {
+	name: 'fastZombie',
+	character: 'z',
+	foreground: 'yellow',
+	maxHp: 6,
+	speed: 1500,
+	mixins: [
+		Game.EntityMixins.TaskActor,
+		Game.EntityMixins.Destructable,
+		Game.EntityMixins.Attacker,
+		Game.EntityMixins.CorpseDropper,
+		Game.EntityMixins.RandomStatGainer,
+		Game.EntityMixins.ExperienceGainer
+		]
+});
+
+Game.EntityRepository.define('zombie', {
+	name: 'zombie',
+	character: 'z',
+	foreground: 'pink',
+	maxHp: 5,
+	speed: 250,
+	mixins: [
+		Game.EntityMixins.TaskActor,
+		Game.EntityMixins.Destructable,
+		Game.EntityMixins.Attacker,
+		Game.EntityMixins.CorpseDropper,
+		Game.EntityMixins.RandomStatGainer,
+		Game.EntityMixins.ExperienceGainer
+		]
+})
 
 Game.EntityRepository.define('bat', {
 	name: 'bat',
@@ -74,8 +122,8 @@ Game.EntityRepository.define('newt', {
 });
 
 Game.EntityRepository.define('kobold', {
-	name: 'kobold',
-	character: 'K',
+	name: 'Angry Zombie',
+	character: 'z',
 	foreground: 'lightGreen',
 	maxHp: 6,
 	attackValue: 4,

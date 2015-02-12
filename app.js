@@ -19,6 +19,10 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
     var message = "hi";
+  socket.on('game', function(data){
+  	console.log(data);
+  });
+  
     io.emit('ping', message);
   socket.on('chat message', function(msg){
     var msg = "hi";

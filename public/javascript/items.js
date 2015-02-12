@@ -52,7 +52,7 @@ Game.ItemRepository.define('corpse', {
 
 // Weapons
 Game.ItemRepository.define('dagger', {
-    name: 'dagger',
+    name: 'knife',
     character: 'í',
     foreground: 'gray',
     attackValue: 5,
@@ -63,9 +63,9 @@ Game.ItemRepository.define('dagger', {
 });
 
 Game.ItemRepository.define('sword', {
-    name: 'sword',
+    name: 'chainsaw',
     character: 'ļ',
-    foreground: 'white',
+    foreground: 'red',
     attackValue: 10,
     wieldable: true,
     mixins: [Game.ItemMixins.Equippable]

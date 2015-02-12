@@ -40,14 +40,14 @@ Game.Tile.wallTile = new Game.Tile({
 });
 
 Game.Tile.stairsUpTile = new Game.Tile({
-	character: '<',
+	character: '>',
 	foreground: 'white',
 	walkable: true,
 	blocksLight: false
 });
 
 Game.Tile.stairsDownTile = new Game.Tile({
-	character: '>',
+	character: '<',
 	foreground: 'gray',
 	walkable: true,
 	blocksLight: false
