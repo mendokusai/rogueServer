@@ -14,8 +14,8 @@
 
     #title {
       position: relative;
-      top: 31em;
-      left: -3em;
+      top: 32em;
+      left: -5em;
     }
     h1 {
     	font-family: 'Cabin Sketch', sans-serif;
@@ -44,7 +44,7 @@
       position: relative;
       top: -31em;
       width: 55em;
-      left: 2.5em;
+      left: -4.5em;
       }
     #directions {
       position: relative;
