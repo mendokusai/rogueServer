@@ -150,7 +150,7 @@ Game.EntityMixins.Destructable = {
 		//add to both maxHP and Hp
 		this._maxHp += value;
 		this._hp += value;
-		Game.sendMessage(this, 'Your the image of health.');
+		Game.sendMessage(this, 'You\'re the image of health.');
 	},
 	takeDamage: function(attacker, damage) {
 		this._hp -= damage;
@@ -322,22 +322,6 @@ Game.EntityMixins.ExperienceGainer = {
 			this._statOptions.push(['Increase sight range', this.increaseSightRadius]);
 		}
 	},
-	listeners: {
-		onKill: function(vicitim) {
-			var exp = victim.getMaxHp() + vicitim.getDefenseValue();
-			if (vicitim.hasMixin('Attacker')) {
-				exp += vicitim.getAttackValue();
-			}
-			//account for level difference
-			if (victim.hasMixin('ExperienceGainer')) {
-				exp -= (this.getLevel() - victim.getLevel()) * 3;
-			}
-			//only give exp if more than 0.
-			if (exp > 0) {
-				this.giveExperience(exp);
-			}
-		}
-	},
 	getLevel: function() {
 		return this._level;
 	},
@@ -381,6 +365,22 @@ Game.EntityMixins.ExperienceGainer = {
 		if (levelsGained > 0) {
 			Game.sendMessage(this, 'Your skills have increased to level %d.', [this._level]);
 			this.raiseEvent('onGainLevel');
+		}
+	},
+	listeners: {
+		onKill: function(victim) {
+			var exp = victim.getMaxHp() + victim.getDefenseValue();
+			if (victim.hasMixin('Attacker')) {
+				exp += victim.getAttackValue();
+			}
+			//account for level difference
+			if (victim.hasMixin('ExperienceGainer')) {
+				exp -= (this.getLevel() - victim.getLevel()) * 3;
+			}
+			//only give exp if more than 0.
+			if (exp > 0) {
+				this.giveExperience(exp);
+			}
 		}
 	}
 };
@@ -464,7 +464,7 @@ Game.EntityMixins.FoodConsumer = {
 	init: function(template) {
 		this._maxFullness = template['maxFullness'] || 1000;
 		//start halfway to max fullness 
-		this._fullness = template['fullness'] || (this._maxFullness /2);
+		this._fullness = template['fullness'] || (this._maxFullness / 2);
 		//number of points to decrease fullness by every turn
 		this._fullnessDepletionRate = template['fullnessDepletionRate'] || 1;	
 	},
@@ -489,6 +489,9 @@ Game.EntityMixins.FoodConsumer = {
 		//25% of max = hungry;
 		} else if (this._fullness <= perPercent * 25) {
 			return 'Very hungry.';
+			//25% of max = hungry;
+		} else if (this._fullness <= perPercent * 50) {
+			return 'Hungry.'
 		//95% of max = oversatiated
 		} else if (this._fullness >= perPercent * 95) {
 			return 'Stuffed. I couldn\'t eat a wafer.';
