@@ -28,7 +28,7 @@ Game.EntityRepository = new Game.Repository('entities', Game.Entity);
 
 Game.EntityRepository.define('fungus', {
 	name: 'fungus',
-	character: 'F',
+	character: 'c',
 	foreground: 'green',
 	maxHp: 5,
 	speed: 250,
@@ -77,7 +77,7 @@ Game.EntityRepository.define('zombie', {
 	character: 'z',
 	foreground: 'pink',
 	maxHp: 5,
-	speed: 250,
+	speed: 300,
 	mixins: [
 		Game.EntityMixins.TaskActor,
 		Game.EntityMixins.Destructable,
@@ -86,11 +86,11 @@ Game.EntityRepository.define('zombie', {
 		Game.EntityMixins.RandomStatGainer,
 		Game.EntityMixins.ExperienceGainer
 		]
-})
+});
 
 Game.EntityRepository.define('bat', {
 	name: 'bat',
-	character: '~',
+	character: 'x',
 	foreground: 'brown',
 	maxHp: 5,
 	speed: 2000,
@@ -125,8 +125,8 @@ Game.EntityRepository.define('kobold', {
 	name: 'Angry Zombie',
 	character: 'z',
 	foreground: 'lightGreen',
-	maxHp: 6,
-	attackValue: 4,
+	maxHp: 8,
+	attackValue: 6,
 	sightRadius: 5,
 	tasks: ['hunt', 'wander'],
 	mixins: [
@@ -165,7 +165,7 @@ Game.EntityRepository.define('slime', {
 	name: 'slime', 
 	character: 'ů',
 	foreground: 'lightGreen',
-	maxHp: 10,
+	maxHp: 8,
 	attackValue: 5,
 	sightRadius: 3,
 	tasks: ['hunt', 'wander'],

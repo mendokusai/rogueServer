@@ -568,7 +568,7 @@ Game.EntityMixins.GiantZombieActor = Game.extend(Game.EntityMixins.TaskActor, {
 			return;
 		}
 		//create the entity
-		var slime = Game.EntityRepository.create('slime');
+		var slime = Game.EntityRepository.create('kobold');
 		slime.setX(this.getX() + xOffset);
 		slime.setY(this.getY() + yOffset);
 		slime.setZ(this.getZ());

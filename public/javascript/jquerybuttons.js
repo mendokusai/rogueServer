@@ -2,9 +2,12 @@
 
 cheet('↑ ↑ ↓ ↓ ← → ← →', function () {
   alert('Konami!!');
+  window.open('https://www.youtube.com/watch?v=LsBrmSNBH5g&list=RDLsBrmSNBH5g#', '_blank');
   if (Game.Screen.startScreen) {
-			Game.PlayerTemplate.maxHp = 80;
-			this.setHp(this.getMaxHp());
+			var max = Game.PlayerTemplate.maxHp;
+			max = 80;
+			Game._currentScreen._player.increaseMaxHp(max)
+
 		}
 });
 

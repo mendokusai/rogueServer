@@ -5,7 +5,7 @@ Game.Map.Cave = function(tiles, player) {
 	this.addEntityAtRandomPosition(player, 0);
 	//all the zombies!
 	for (var x = 0; x < this._depth; x++) {
-		//40 per floor! 60$$!!
+		//20 per floor
 		for (var i = 0; i < 20; i++) {
 			var zombies = Game.EntityRepository.create('zombie');
 			this.addEntityAtRandomPosition(zombies, z);
@@ -20,7 +20,7 @@ Game.Map.Cave = function(tiles, player) {
 	
 
 	for (var x = 0; x < this._depth; x++) {
-		//40 per floor! 60$$!!
+		//20 per floor
 		for (var i = 0; i < 20; i++) {
 			var zombies2 = Game.EntityRepository.create('fasterZombie');
 			this.addEntityAtRandomPosition(zombies, z);
@@ -34,8 +34,8 @@ Game.Map.Cave = function(tiles, player) {
 	}
 
 	for (var x = 0; x < this._depth; x++) {
-		//40 per floor! 60$$!!
-		for (var i = 0; i < 10; i++) {
+		//20 per floor
+		for (var i = 0; i < 20; i++) {
 			var zombies3 = Game.EntityRepository.create('fastZombie');
 			this.addEntityAtRandomPosition(zombies, z);
 			if (zombies3.hasMixin('ExperienceGainer')) {
