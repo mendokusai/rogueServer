@@ -239,13 +239,10 @@ Game.Screen.playScreen = {
 
 				var goingUp = ( this._player._map.getTile( playerXCoords, playerYCoords, playerZCoords )._char === ">" ) || false;
 
-				console.log("Movement: ", movement)
 				var keyChar = String.fromCharCode(inputData.charCode);
 				if (keyChar === "<" || (movement === "stairs" && !goingUp)) {
-					console.log("In Char Code - going down")
 					this.move(0,0,1);
 				} else if (keyChar === '>' || (movement === "stairs" && goingUp)) {
-					console.log("In Char Code - going up")
 					this.move(0,0,-1);
 				} else {
 					//not a valid key

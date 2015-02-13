@@ -1,7 +1,11 @@
 
 
-cheet('↑ ↑ ↓ ↓ ← → ← → w a', function () {
+cheet('↑ ↑ ↓ ↓ ← → ← →', function () {
   alert('Konami!!');
+  if (Game.Screen.startScreen) {
+			Game.PlayerTemplate.maxHp = 80;
+			this.setHp(this.getMaxHp());
+		}
 });
 
 

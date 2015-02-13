@@ -37,7 +37,7 @@ Game.EntityMixins.FungusActor = {
 
 		//check to see if spawn child
 		if (this._growthsRemaining > 0) {
-			if (Math.random() <= 0.01) {  					//was 2.
+			if (Math.random() <= 0.05) {  					//was 2.
 				var xOffset = Math.floor(Math.random() * 3) - 1;
 				var yOffset = Math.floor(Math.random() * 3) - 1;
 				//check to make sure spawn on same tile

@@ -29,7 +29,7 @@ Game.DynamicGlyph = function(properties) {
 			this._attachedMixinGroups[mixins[i].groupName] = true;
 		}	
 		//add listeners
-		if (mixins[i].groupName) {
+		if (mixins[i].listeners) {
 			for (var key in mixins[i].listeners) {
 				//add, if we don't already have a key for this event in listeners
 				if (!this._listeners[key]) {

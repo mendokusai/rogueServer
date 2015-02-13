@@ -39,6 +39,13 @@ Game.Tile.wallTile = new Game.Tile({
 	diggable: true
 });
 
+Game.Tile.blockTile = new Game.Tile({
+	character: "#",
+	foreground: 'gray',
+	diggable: false,
+	blocksLight: true
+});
+
 Game.Tile.stairsUpTile = new Game.Tile({
 	character: '>',
 	foreground: 'white',
