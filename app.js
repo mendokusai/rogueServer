@@ -19,10 +19,18 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
     var message = "hi";
-  socket.on('game', function(data){
-  	console.log(data);
+  socket.on('start', function(data){
+  	console.log("Start Data: ", data);
   });
-  
+
+  socket.on('game', function(data){
+  	if( data._player) {
+  		console.log("data: ", data.data);
+  	} else {
+  		console.log('data: ', data);
+  	}
+  });
+
     io.emit('ping', message);
   socket.on('chat message', function(msg){
     var msg = "hi";

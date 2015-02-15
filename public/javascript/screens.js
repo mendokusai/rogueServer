@@ -229,7 +229,7 @@ Game.Screen.playScreen = {
 						}	
 				}
 				//unlock engine on move
-					this._player.getMap().getEngine().unlock();
+				this._player.getMap().getEngine().unlock();
 			}
 			if (movement === "stairs" || inputType === 'keypress') {
 				var playerXCoords = this._player.getX(),
@@ -257,7 +257,6 @@ Game.Screen.playScreen = {
 		var newY = this._player.getY() + dY;
 		var newZ = this._player.getZ() + dZ;
 		//try to move to new cell
-
 		this._player.tryMove(newX, newY, newZ, this._player.getMap());
 	},
 	setGameEnded: function(gameEnded) {
